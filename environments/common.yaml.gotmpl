@@ -1,0 +1,29 @@
+---
+{{ $defaultNamespace := "qkm" }}
+{{ $tag := "develop" }}
+
+qkm:
+  namespace: {{ env "QKM_NAMESPACE" | default $defaultNamespace  }}
+
+  imageCredentials:
+    registry: {{ env "REGISTRY_URL" | default "docker.consensys.net" }}
+    username: {{ requiredEnv "REGISTRY_USERNAME" }}
+    password: {{ requiredEnv "REGISTRY_PASSWORD" }}
+  image:
+    repository: {{ env "QKM_REPOSITORY" | default "docker.consensys.net/priv/quorum-key-manager" }}
+    tag: {{ env "QKM_TAG" | default $tag | quote }}
+
+  environment: {}
+  environmentSecrets: {}
+
+
+vaultOperator:
+  namespace: {{ env "VAULT_OPERATOR_NAMESPACE" | default "vault-operator" }}
+
+vault:
+  namespace: {{ env "VAULT_NAMESPACE" | default ( env "QKM_NAMESPACE" | default $defaultNamespace ) }}
+  plugin:
+    tag: {{ env "VAULT_PLUGIN_TAG" | default "v0.0.11-alpha.4" }}
+    sha256: {{ env "VAULT_PLUGIN_SHA256SUM" | default "05389bb4e205d24ac14d01fceefd8f545b732ca89f36833e2a5b8809b0b5cace" }}
+
+domainName: {{ env "DOMAIN_NAME" }}

@@ -1,0 +1,7 @@
+---
+bases:
+  - helmfile-common.yaml
+---
+helmfiles:
+  - helmfile-operators.yaml
+  - helmfile-core.yaml

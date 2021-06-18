@@ -1,0 +1,21 @@
+---
+bases:
+  - helmfile-common.yaml
+---
+releases:
+  - name: vault
+    namespace: {{ .Values.vault.namespace }}
+    chart: incubator/raw
+    version: 0.2.3
+    atomic: true
+    values:
+      - values/vault.yaml.gotmpl
+  - name: quorum-key-manager
+    namespace: {{ .Values.qkm.namespace }}
+    chart: /home/christian/Dev/PegaSys/quorum-key-manager-helm
+    atomic: true
+    version: 1.0.2
+    needs:
+      - {{ .Values.vault.namespace }}/vault
+    values:
+      - values/qkm.yaml.gotmpl

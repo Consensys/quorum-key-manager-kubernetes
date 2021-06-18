@@ -1,0 +1,138 @@
+
+commands:
+  init:
+    description: "Install"
+    steps:
+      - run:
+          name: Import parameters
+          # Inspired by https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-shell-command
+          command: |
+            [ "<< pipeline.parameters.environment_values >>" ] && echo 'export ENVIRONMENT_VALUES=<< pipeline.parameters.environment_values >>' >> $BASH_ENV
+            [ "<< pipeline.parameters.qkm_namespace >>" ] && echo 'export QKM_NAMESPACE=<< pipeline.parameters.qkm_namespace >>' >> $BASH_ENV
+            [ "<< pipeline.parameters.qkm_tag >>" ] && echo 'export QKM_TAG=<< pipeline.parameters.qkm_tag >>' >> $BASH_ENV
+            [ "<< pipeline.parameters.qkm_repository >>" ] && echo 'export QKM_REPOSITORY=<< pipeline.parameters.qkm_repository >>' >> $BASH_ENV
+            [ "<< pipeline.parameters.registry_url >>" ] && echo 'export REGISTRY_URL=<< pipeline.parameters.registry_url >>' >> $BASH_ENV
+            [ "<< pipeline.parameters.registry_username >>" ] && echo 'export REGISTRY_USERNAME=<< pipeline.parameters.registry_username >>' >> $BASH_ENV
+            [ "<< pipeline.parameters.registry_password >>" ] && echo 'export REGISTRY_PASSWORD=<< pipeline.parameters.registry_password >>' >> $BASH_ENV
+            source $BASH_ENV || true
+      - checkout
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          authenticator-release-tag: v0.5.1
+          cluster-name: ${AWS_EKS_CLUSTER_NAME}
+          cluster-authentication-role-arn: ${AWS_EKS_ROLE_ARN}
+      - helm/install-helm-client:
+          version: v3.3.4
+      - run:
+          name: Install helm plugins
+          command: helm plugin install https://github.com/databus23/helm-diff
+      - run:
+          name: Install helmfile
+          command: |
+            curl -L --fail --retry 3 -o ./helmfile  https://github.com/roboll/helmfile/releases/download/v0.130.0/helmfile_linux_amd64
+            chmod +x ./helmfile
+            sudo mv ./helmfile /usr/local/bin/helmfile
+
+parameters:
+  environment_values:
+    type: string
+    default: ""  
+  qkm_namespace:
+    type: string
+    default: ""
+  qkm_tag:
+    type: string
+    default: ""
+  qkm_repository:
+    type: string
+    default: ""
+  registry_url:
+    type: string
+    default: ""
+  registry_username:
+    type: string
+    default: ""
+  registry_password:
+    type: string
+    default: ""
+
+jobs:
+  lint:
+    executor: aws-eks/python3
+    steps:
+      - init
+      - run:
+          name: helmfile lint
+          command: helmfile -e ${ENVIRONMENT_VALUES} -f helmfile-core.yaml lint
+  validate:
+    executor: aws-eks/python3
+    steps:
+      - init
+      - run:
+          name: helmfile dry-run
+          command: helmfile -e ${ENVIRONMENT_VALUES} -f helmfile-core.yaml apply --args --dry-run --suppress-secrets --detailed-exitcode=false
+  deploy:
+    executor: aws-eks/python3
+    steps:
+      - init
+      - run:
+          name: helmfile apply
+          command: helmfile -e ${ENVIRONMENT_VALUES} -f helmfile-core.yaml apply --suppress-secrets --detailed-exitcode=false --concurrency 1
+      - when:
+          condition:
+            equal: [ default, << pipeline.parameters.environment_values >> ]
+          steps:
+            - run: 
+                name: Annotate as disposable environement
+                command: kubectl annotate --overwrite ns ${QKM_NAMESPACE} disposable=true
+  clean-namespaces:
+    executor: aws-eks/python3
+    steps:
+      - init
+      - run:
+          name: Delete namespaces
+          command: kubectl get ns -o go-template --template='{{range .items}}{{if .metadata.annotations.disposable}}{{if eq .metadata.annotations.disposable "true"}}{{.metadata.name}} {{.metadata.creationTimestamp}}{{"\n"}}{{end}}{{end}}{{end}}' | awk '$2 <= "'$(date -d'now-2 days' -Ins --utc | sed 's/+0000/Z/')'" { print $1 }' | xargs -r kubectl delete ns --grace-period=0 --force
+
+orbs:
+  aws-eks: circleci/aws-eks@1.0.0
+  kubernetes: circleci/kubernetes@0.11.1
+  helm: circleci/helm@1.2.0
+
+version: 2.1
+
+workflows:
+  default:
+    jobs:
+      - lint:
+          filters:
+            branches:
+              ignore:
+                - master
+      - validate:
+          filters:
+            branches:
+              ignore:
+                - master
+          requires: 
+            - lint
+  circleci-api:
+    when: 
+      and: 
+        - << pipeline.parameters.environment_values >>
+        - << pipeline.parameters.qkm_namespace >>
+    jobs:
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
+  schedule-clean-namespaces:
+    triggers:
+      - schedule:
+          cron: "0 5 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - clean-namespaces

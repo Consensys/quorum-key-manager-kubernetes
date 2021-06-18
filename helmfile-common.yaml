@@ -1,0 +1,18 @@
+---
+helmDefaults:
+  verify: false
+  wait: true
+  timeout: 600 
+  recreatePods: false
+  force: false
+  cleanupOnFail: true
+environments:
+  default:
+    values:
+      - environments/common.yaml.gotmpl
+      - environments/default.yaml
+repositories:
+  - name: consensys
+    url: https://artifacts.consensys.net/public/helm/helm/charts/
+  - name: banzaicloud
+    url: https://kubernetes-charts.banzaicloud.com
