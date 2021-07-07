@@ -107,12 +107,12 @@ workflows:
           filters:
             branches:
               ignore:
-                - master
+                - main
       - validate:
           filters:
             branches:
               ignore:
-                - master
+                - main
           requires: 
             - lint
   circleci-api:
@@ -125,7 +125,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
   schedule-clean-namespaces:
     triggers:
       - schedule:
@@ -133,6 +133,6 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
     jobs:
       - clean-namespaces
