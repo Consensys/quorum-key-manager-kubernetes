@@ -1,21 +1,16 @@
 ---
-{{ $defaultNamespace := "qkm" }}
-{{ $tag := "develop" }}
+{{ $defaultNamespace := "staging-qkm" }}
+{{ $tag := "v21.7.0-alpha.1" }}
 
 qkm:
   namespace: {{ env "QKM_NAMESPACE" | default $defaultNamespace  }}
 
-  imageCredentials:
-    registry: {{ env "REGISTRY_URL" | default "docker.consensys.net" }}
-    username: {{ requiredEnv "REGISTRY_USERNAME" }}
-    password: {{ requiredEnv "REGISTRY_PASSWORD" }}
   image:
-    repository: {{ env "QKM_REPOSITORY" | default "docker.consensys.net/priv/quorum-key-manager" }}
+    repository: {{ env "QKM_REPOSITORY" | default "docker.consensys.net/pub/quorum-key-manager" }}
     tag: {{ env "QKM_TAG" | default $tag | quote }}
 
   environment: {}
   environmentSecrets: {}
-
 
 vaultOperator:
   namespace: {{ env "VAULT_OPERATOR_NAMESPACE" | default "vault-operator" }}

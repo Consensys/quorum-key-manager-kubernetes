@@ -12,9 +12,9 @@ releases:
       - values/vault.yaml.gotmpl
   - name: quorum-key-manager
     namespace: {{ .Values.qkm.namespace }}
-    chart: /home/christian/Dev/PegaSys/quorum-key-manager-helm
+    chart: consensys/quorumkeymanager
     atomic: true
-    version: 1.0.2
+    version: 1.0.0
     needs:
       - {{ .Values.vault.namespace }}/vault
     values:

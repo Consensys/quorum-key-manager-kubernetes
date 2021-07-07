@@ -1,9 +1,9 @@
-imageCredentials:
-  {{- .Values.qkm.imageCredentials | toYaml | nindent 2 }}
 image:
   {{- .Values.qkm.image | toYaml | nindent 2 }}
 environment:
   VAULT_ADDR: http://vault.{{ .Values.vault.namespace }}:8200
+  HTTP_HOST: 0.0.0.0
+  LOG_FORMAT: json
   {{- range $key,$value := .Values.qkm.environment }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
@@ -18,15 +18,18 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
   hosts:
-    - host: {{ .Values.qkm.namespace }}.qkm.{{ .Values.domainName }}
+    - host: {{ .Values.qkm.namespace }}.{{ .Values.domainName }}
       paths:
         - path: /
           backend:
             servicePort: http-svc
+  tls:
+    - hosts:
+      - {{ .Values.qkm.namespace }}.{{ .Values.domainName }}
 manifests: |
   - kind: Eth1Account
     version: 0.0.1
-    name: eth1
+    name: dummy
     specs:
       keystore: HashicorpKeys
       specs:

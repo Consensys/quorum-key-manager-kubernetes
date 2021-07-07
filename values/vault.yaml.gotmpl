@@ -138,7 +138,7 @@ templates:
         - type: kubernetes
           roles:
             - name: quorumkeymanager
-              bound_service_account_names: ["quorum-key-manager-qkm", "vault-secrets-webhook", "vault"]
+              bound_service_account_names: ["quorum-key-manager-quorumkeymanager", "vault-secrets-webhook", "vault"]
               bound_service_account_namespaces: ["{{ .Values.vault.namespace }}", "{{ .Values.qkm.namespace }}"]
               policies: ["quorumkeymanager_keys", "quorumkeymanager_secrets"]
         {{ if .Values.observability.enabled }}
