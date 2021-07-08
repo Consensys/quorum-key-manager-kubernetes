@@ -11,9 +11,6 @@ commands:
             [ "<< pipeline.parameters.qkm_namespace >>" ] && echo 'export QKM_NAMESPACE=<< pipeline.parameters.qkm_namespace >>' >> $BASH_ENV
             [ "<< pipeline.parameters.qkm_tag >>" ] && echo 'export QKM_TAG=<< pipeline.parameters.qkm_tag >>' >> $BASH_ENV
             [ "<< pipeline.parameters.qkm_repository >>" ] && echo 'export QKM_REPOSITORY=<< pipeline.parameters.qkm_repository >>' >> $BASH_ENV
-            [ "<< pipeline.parameters.registry_url >>" ] && echo 'export REGISTRY_URL=<< pipeline.parameters.registry_url >>' >> $BASH_ENV
-            [ "<< pipeline.parameters.registry_username >>" ] && echo 'export REGISTRY_USERNAME=<< pipeline.parameters.registry_username >>' >> $BASH_ENV
-            [ "<< pipeline.parameters.registry_password >>" ] && echo 'export REGISTRY_PASSWORD=<< pipeline.parameters.registry_password >>' >> $BASH_ENV
             source $BASH_ENV || true
       - checkout
       - kubernetes/install
@@ -44,15 +41,6 @@ parameters:
     type: string
     default: ""
   qkm_repository:
-    type: string
-    default: ""
-  registry_url:
-    type: string
-    default: ""
-  registry_username:
-    type: string
-    default: ""
-  registry_password:
     type: string
     default: ""
 
