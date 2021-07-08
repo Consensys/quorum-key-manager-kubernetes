@@ -13,6 +13,7 @@ environmentSecrets:
   {{- end }}
 vaultAgent:
   role: "quorumkeymanager"
+{{- if .Values.domainName }}
 ingress:
   enabled: true
   annotations:
@@ -26,6 +27,7 @@ ingress:
   tls:
     - hosts:
       - {{ .Values.qkm.namespace }}.{{ .Values.domainName }}
+{{- end }}
 manifests: |
   - kind: Eth1Account
     version: 0.0.1
