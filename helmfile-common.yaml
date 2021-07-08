@@ -7,6 +7,14 @@ helmDefaults:
   force: false
   cleanupOnFail: true
 environments:
+  qa:
+    values:
+      - environments/common.yaml.gotmpl
+      - environments/qa.yaml
+  staging:
+    values:
+      - environments/common.yaml.gotmpl
+      - environments/staging.yaml
   default:
     values:
       - environments/common.yaml.gotmpl
