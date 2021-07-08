@@ -15,7 +15,7 @@ helmfile apply --suppress-secrets
 2. Once deployed you could easily test the Quorum Key Manager API in http://localhost:8080:
 
 ```
-kubectl port-forward --namespace staging-qkm svc/quorum-key-manager-quorumkeymanager 8080:8080
+kubectl port-forward --namespace qa-qkm svc/quorum-key-manager-quorumkeymanager 8080:8080
 ```
 
 [See Quorum Key Manager APIs documentation](https://consensys.github.io/quorum-key-manager)
@@ -26,5 +26,5 @@ kubectl port-forward --namespace staging-qkm svc/quorum-key-manager-quorumkeyman
 
 ```bash
 helmfile delete --purge
-kubectl delete namespace staging-qkm
+kubectl delete namespace qa-qkm
 ```
