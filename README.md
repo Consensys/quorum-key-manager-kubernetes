@@ -2,9 +2,9 @@
 
 This repository contains an implementation example on how to deploy the Quorum Key Manager with Hashicorp Vault using Kubernetes and Helm charts.
 
-# 2. Installing Quorum Key Manager
+# 1. Installing Quorum Key Manager
 
-## 2.1. Quickstart
+## 1.1. Quickstart
 
 1. To deploy a simple Quorum Key Manager (not production ready) and with Hashicorp Vault, run the following command:
 
@@ -20,7 +20,7 @@ kubectl port-forward --namespace qa-qkm svc/quorum-key-manager-quorumkeymanager 
 
 [See Quorum Key Manager APIs documentation](https://consensys.github.io/quorum-key-manager)
 
-## 2.2. Delete Quorum Key Manager
+## 1.2. Delete Quorum Key Manager
 !!!hint
   to delete Quorum Key Manager's deployment and its ressources run the following commands:
 
