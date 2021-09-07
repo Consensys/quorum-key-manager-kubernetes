@@ -14,7 +14,7 @@ releases:
     namespace: {{ .Values.qkm.namespace }}
     chart: consensys/quorumkeymanager
     atomic: true
-    version: 1.0.0
+    version: 1.0.1
     needs:
       - {{ .Values.vault.namespace }}/vault
     values:
