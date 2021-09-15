@@ -31,13 +31,13 @@ ingress:
 manifests: |
   - kind: Eth1Account
     version: 0.0.1
-    name: dummy
+    name: eth1-accounts
     specs:
       keystore: HashicorpKeys
       specs:
-        mountPoint: key
+        mountPoint: orchestrate
         address: http://vault.{{ .Values.vault.namespace }}:8200
-        tokenPath: "/vault/token/.vault-token"
+        tokenPath: "/vault/token/.agent-vault-token"
         namespace: ""
   - kind: Node
     name: quorum-node
