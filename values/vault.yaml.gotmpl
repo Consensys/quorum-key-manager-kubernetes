@@ -33,19 +33,22 @@ templates:
           - |
             wget -q --header='Accept:application/octet-stream' \
               $PLUGIN_REPO/releases/download/$PLUGIN_VERSION/$PLUGIN_FILE \
-              -O "${PLUGINS_PATH}/orchestrate"
-            chmod +x ${PLUGINS_PATH}/orchestrate
+              -O "${PLUGINS_PATH}/${PLUGINS_LOCAL_FILE}"
+            chmod +x ${PLUGINS_PATH}/${PLUGINS_LOCAL_FILE}
             echo "${PLUGIN_VERSION}/${PLUGIN_FILE} downloaded"
-            echo "File at ${PLUGINS_PATH}/orchestrate"
+            echo "File at ${PLUGINS_PATH}/${PLUGINS_LOCAL_FILE}"
         env: 
           - name: PLUGIN_VERSION
             value: {{ .Values.vault.plugin.tag }}
           - name: PLUGIN_FILE
             value: orchestrate-hashicorp-vault-plugin
+          - name: PLUGIN_LOCAL_FILE
+            value: {{ .Values.vault.plugin.file }}
           - name: PLUGIN_REPO
             value: https://github.com/ConsenSys/orchestrate-hashicorp-vault-plugin
           - name: PLUGINS_PATH
             value: /vault/plugins
+          
         volumeMounts:
           - name: vault-plugin
             mountPath: /vault/plugins
@@ -151,9 +154,9 @@ templates:
         {{ end }}
 
       secrets:
-        - path: key
+        - path: {{ .Values.vault.plugin.file }}
           type: plugin
-          plugin_name: orchestrate
+          plugin_name: {{ .Values.vault.plugin.file }}
           description: QKM key storage gateway
           config:
             force_no_cache: true
@@ -165,8 +168,8 @@ templates:
             version: 2
 
       plugins:
-        - plugin_name: orchestrate
-          command: orchestrate
+        - plugin_name: {{ .Values.vault.plugin.file }}
+          command: {{ .Values.vault.plugin.file }}
           sha256: {{ .Values.vault.plugin.sha256 }}
           type: secret
 
