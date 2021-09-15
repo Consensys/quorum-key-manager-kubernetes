@@ -130,12 +130,12 @@ templates:
             }
         {{ end }}
         - name: quorumkeymanager_keys
-          rules: path "key/*" {
-            capabilities = ["create", "read", "update", "list"]
+          rules: path "{{ .Values.vault.plugin.file }}/*" {
+            capabilities = ["create", "read", "delete", "update", "list"]
             }
         - name: quorumkeymanager_secrets
           rules: path "secret/*" {
-            capabilities = ["create", "read", "update", "list"]
+            capabilities = ["create", "read", "delete", "update", "list"]
             }
       auth:
         - type: kubernetes
