@@ -10,6 +10,13 @@ releases:
     atomic: true
     values:
       - values/vault.yaml.gotmpl
+  - name: postgres
+    namespace: {{ .Values.vault.namespace }}
+    chart: bitnami/postgresql
+    version: 10.9.5
+    atomic: true
+    values:
+      - values/postgres.yaml.gotmpl
   - name: quorum-key-manager
     namespace: {{ .Values.qkm.namespace }}
     chart: consensys/quorumkeymanager
@@ -17,5 +24,6 @@ releases:
     version: 1.0.4
     needs:
       - {{ .Values.vault.namespace }}/vault
+      - {{ .Values.vault.namespace }}/postgres
     values:
       - values/qkm.yaml.gotmpl

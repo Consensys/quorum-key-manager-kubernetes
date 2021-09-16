@@ -4,6 +4,10 @@ environment:
   VAULT_ADDR: http://vault.{{ .Values.vault.namespace }}:8200
   HTTP_HOST: 0.0.0.0
   LOG_FORMAT: json
+  DB_HOST: postgres-postgresql.{{ .Values.vault.namespace }}
+  DB_PORT: 5432
+  DB_DATABASE: {{ .Values.postgresqlDatabase }}
+  DB_PASSWORD: "1234567890"
   {{- range $key,$value := .Values.qkm.environment }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
@@ -29,7 +33,7 @@ ingress:
       - {{ .Values.qkm.namespace }}.{{ .Values.domainName }}
 {{- end }}
 manifests: |
-  - kind: Eth1Account
+  - kind: Ethereum
     version: 0.0.1
     name: eth1-accounts
     specs:

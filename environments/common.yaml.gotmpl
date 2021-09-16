@@ -1,6 +1,6 @@
 ---
 {{ $defaultNamespace := "qa-qkm" }}
-{{ $tag := "v21.7.0-alpha.4" }}
+{{ $tag := "v21.7.0-alpha.5" }}
 
 qkm:
   namespace: {{ env "QKM_NAMESPACE" | default $defaultNamespace  }}
@@ -23,3 +23,5 @@ vault:
     sha256: {{ env "VAULT_PLUGIN_SHA256SUM" | default "3e2b2fe43c866c65dd32a0c8a7c722d03250fd745a3216152cdd1b0917389f37" }}
 
 domainName: {{ env "DOMAIN_NAME" }}
+
+postgresqlDatabase: testDb
