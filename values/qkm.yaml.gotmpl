@@ -39,10 +39,18 @@ manifests: |
     specs:
       keystore: HashicorpKeys
       specs:
-        mountPoint: orchestrate
+        mountPoint: quorum
         address: http://vault.{{ .Values.vault.namespace }}:8200
         tokenPath: "/vault/token/.agent-vault-token"
         namespace: ""
+  - kind: HashicorpSecrets
+    version: 0.0.1
+    name: hashicorp-secrets
+    specs:
+      mountPoint: secret
+      address: https://vault.{{ .Values.vault.namespace }}:8200
+      tokenPath: /vault/token/.agent-vault-token
+      namespace: ''
   - kind: Node
     name: quorum-node
     version: 0.0.0
