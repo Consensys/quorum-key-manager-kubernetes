@@ -28,3 +28,12 @@ kubectl port-forward --namespace qa-qkm svc/quorum-key-manager-quorumkeymanager 
 helmfile delete --purge
 kubectl delete namespace qa-qkm
 ```
+# 2. Hashicorp Vault
+
+## 2.1 Enable auditing
+
+Once vault auditing has been enabled, you will need to activate it by running the following command
+
+```bash
+kubectl exec -ti $POD NAME --  vault audit enable file file_path=/vault/audit/vault_audit.log
+```
