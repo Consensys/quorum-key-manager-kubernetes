@@ -7,6 +7,8 @@ templates:
   metadata:
     name: vault
   spec:
+    nodeSelector:
+      type: {{ .Values.vault.nodeSelector }}
     size: {{ $replicaCount }}
     image: vault:1.8.2
     bankVaultsImage: banzaicloud/bank-vaults:latest
