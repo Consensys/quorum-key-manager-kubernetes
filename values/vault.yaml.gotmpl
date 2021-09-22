@@ -9,7 +9,7 @@ templates:
   spec:
     size: {{ $replicaCount }}
     image: vault:1.8.2
-    bankVaultsImage: banzaicloud/bank-vaults:1.8.0
+    bankVaultsImage: banzaicloud/bank-vaults:latest
 
     # Vault Pods , Services and TLS Secret annotations
     vaultAnnotations:
@@ -24,8 +24,12 @@ templates:
 
     serviceType: ClusterIP
 
+    {{ if .Values.vault.tls.enabled }}
+    existingTlsSecretName: vault-tls
+    {{ end }}
+
     vaultInitContainers:
-      - name: orchestrate-plugin
+      - name: quorum-plugin
         image: alpine:3.13
         command:
           - /bin/sh
@@ -33,19 +37,19 @@ templates:
           - |
             wget -q --header='Accept:application/octet-stream' \
               $PLUGIN_REPO/releases/download/$PLUGIN_VERSION/$PLUGIN_FILE \
-              -O "${PLUGINS_PATH}/${PLUGINS_LOCAL_FILE}"
-            chmod +x ${PLUGINS_PATH}/${PLUGINS_LOCAL_FILE}
+              -O "${PLUGINS_PATH}/${PLUGIN_LOCAL_FILE}"
+            chmod +x ${PLUGINS_PATH}/${PLUGIN_LOCAL_FILE}
             echo "${PLUGIN_VERSION}/${PLUGIN_FILE} downloaded"
-            echo "File at ${PLUGINS_PATH}/${PLUGINS_LOCAL_FILE}"
+            echo "File at ${PLUGINS_PATH}/${PLUGIN_LOCAL_FILE}"
         env: 
           - name: PLUGIN_VERSION
             value: {{ .Values.vault.plugin.tag }}
           - name: PLUGIN_FILE
-            value: orchestrate-hashicorp-vault-plugin
+            value: quorum-hashicorp-vault-plugin
           - name: PLUGIN_LOCAL_FILE
             value: {{ .Values.vault.plugin.file }}
           - name: PLUGIN_REPO
-            value: https://github.com/ConsenSys/orchestrate-hashicorp-vault-plugin
+            value: https://github.com/ConsenSys/quorum-hashicorp-vault-plugin
           - name: PLUGINS_PATH
             value: /vault/plugins
           
@@ -82,12 +86,12 @@ templates:
           resources:
             requests:
               storage: 1Gi
-
+  
     vaultContainerSpec:
       lifecycle:
         postStart:
           exec:
-            command: ["/bin/sh", "-c", "setcap cap_ipc_lock=+ep /vault/plugins/orchestrate"]
+            command: ["/bin/sh", "-c", "setcap cap_ipc_lock=+ep /vault/plugins/quorum"]
   
     # Describe where you would like to store the Vault unseal keys and root token.
     unsealConfig:
@@ -111,14 +115,29 @@ templates:
       listener:
         tcp:
           address: 0.0.0.0:8200
-          tls_disable: true
+          {{ if .Values.vault.tls.enabled }}
+          tls_cert_file: /vault/tls/server.crt
+          tls_key_file: /vault/tls/server.key
+          {{ else }}
+          tls_disable: 1
+          {{ end }}
       plugin_directory: /vault/plugins
       api_addr: http://localhost:8200
       cluster_addr: http://${.Env.POD_NAME}:8201
+      {{ if .Values.vault.tls.enabled }}
+      api_addr: https://localhost:8200
+      cluster_addr: https://${.Env.POD_NAME}:8201
+      {{ end }}
       {{ if .Values.observability.enabled }}
       telemetry:
         statsd_address: localhost:9125
       {{ end }}
+    
+    auditStorage:
+      enabled: {{ .Values.vault.audit.enabled }}
+      size: 10Gi
+      storageClass: null
+      accessMode: ReadWriteOnce
 
     # See: https://github.com/banzaicloud/bank-vaults#example-external-vault-configuration for more details.
     externalConfig:
