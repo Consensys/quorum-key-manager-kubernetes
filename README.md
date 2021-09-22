@@ -43,9 +43,11 @@ kubectl exec -ti $POD NAME --  vault audit enable file file_path=/vault/audit/va
 TLS activation requires that you are able to define secrets and retrieve certificates values.
 
 Secrets are k8s secrets and are used to hold the servers TLS material.
-Certificate values, which are on the client side, must be set appropriatly in this chart values.
+Certificate values, which are on the client side, must be set in this chart values.
 
-Below are given commands to help you creating your own secrets with the valid names, this procedure is not applicable if you use existing secrets, as the ones given by a cert-manager for instance.
+Below are given commands and instructions to help you creating your own secrets with the valid names and setting values.
+
+(this procedure is not applicable if you use existing secrets, as the ones given by a cert-manager for instance)
 
 
 ## 3.1 Postgres tls
