@@ -1,2 +1,11 @@
 observability:
   enabled: false
+vault:
+  tls:
+    enabled: true
+  audit:
+    enabled: false
+postgresql:
+  tls:
+    enabled: true
+  Database: testDb
