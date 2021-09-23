@@ -7,8 +7,13 @@ templates:
   metadata:
     name: vault
   spec:
+    {{ if .Values.vault.dedicatedNode }}
+    tolerations:
+    - key: "isVaultDedicated"
+      operator: "Exists"
     nodeSelector:
       type: {{ .Values.vault.nodeSelector }}
+    {{ end }}
     size: {{ $replicaCount }}
     image: vault:1.8.2
     bankVaultsImage: banzaicloud/bank-vaults:latest
@@ -121,14 +126,14 @@ templates:
           tls_cert_file: /vault/tls/server.crt
           tls_key_file: /vault/tls/server.key
           {{ else }}
-          tls_disable: 1
+          tls_disable: true
           {{ end }}
       plugin_directory: /vault/plugins
-      api_addr: http://localhost:8200
-      cluster_addr: http://${.Env.POD_NAME}:8201
+      api_addr: http://vault.{{ .Values.vault.namespace }}:8200
+      cluster_addr: http://vault.{{ .Values.vault.namespace }}:8201
       {{ if .Values.vault.tls.enabled }}
-      api_addr: https://localhost:8200
-      cluster_addr: https://${.Env.POD_NAME}:8201
+      api_addr: https://vault.{{ .Values.vault.namespace }}:8200
+      cluster_addr: https://vault.{{ .Values.vault.namespace }}:8201
       {{ end }}
       {{ if .Values.observability.enabled }}
       telemetry:

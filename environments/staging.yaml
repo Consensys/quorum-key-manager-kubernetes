@@ -2,6 +2,7 @@ observability:
   enabled: false
 vault:
   nodeSelector: vault
+  dedicatedNode: true
   tls:
     enabled: true
   audit:

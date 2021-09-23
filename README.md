@@ -88,3 +88,29 @@ fill the `vaultAgent` part in the file below.
 [here](./values/qkm.yaml.gotmpl)
 
 format is base64 pem encoded file for each value
+
+# 4. Vault node
+
+It is recommanded when running in production to have your Vault instance isolated from other processes.
+
+To help you achieve that isolation we have added a `nodeSelector` option that will identify the dedicated node within your cluster.
+
+Run the following command to mark the targeted/dedicated node
+
+```bash
+kubectl label node $VAULT_DEDICATED_NODE_ID type=`nodeSelector`
+```
+
+For k8s clusters with versions >= 1.18 the following command will also help exclude non Vault processes
+
+```bash
+kubectl taint nodes $VAULT_DEDICATED_NODE_ID isVaultDedicated=true:NoSchedule
+```
+
+This exclusion policy is permitted by the use of k8s `tolerations`, when no exclusion is necessary the above command must be omitted or cancelled like so :
+
+```bash
+kubectl taint nodes $VAULT_DEDICATED_NODE_ID isVaultDedicated=true:NoSchedule-
+```
+
+and the `dedicatedNode` flag, in values, must be set to false ( that option is not recommanded )

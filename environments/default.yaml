@@ -2,8 +2,9 @@ observability:
   enabled: false
 vault:
   nodeSelector: vault
+  dedicatedNode: false
   tls:
-    enabled: true
+    enabled: false
   audit:
     enabled: false
 postgresql:
