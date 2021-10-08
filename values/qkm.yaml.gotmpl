@@ -9,7 +9,7 @@ environment:
   VAULT_CAPATH: "/vault/tls"
   VAULT_CLIENT_CERT: "/vault/tls/client.crt"
   VAULT_CLIENT_KEY: "/vault/tls/client.key"
-  VAULT_SKIP_VERIFY: "false"
+  VAULT_SKIP_VERIFY: {{ .Values.vault.tls.skipVerify }}
   VAULT_TLS_SERVER_NAME: vault.{{ .Values.vault.namespace }}
   {{ end }}
   HTTP_HOST: 0.0.0.0
@@ -23,6 +23,19 @@ environment:
   DB_TLS_CA: "/postgres/certs/ca.crt"
   DB_TLS_CERT: "/postgres/certs/client.crt"
   DB_TLS_KEY: "/postgres/certs/client.key"
+  {{ end }}
+  {{ if .Values.auth.tls.enabled }}
+  HTTPS_ENABLED: {{ .Values.auth.tls.enabled }}
+  HTTPS_SERVER_KEY: "/certificates/tls.key"
+  HTTPS_SERVER_CERT: "/certificates/tls.crt"
+  AUTH_TLS_CA: "/certificates/ca.crt"
+  {{ end }}
+  {{ if .Values.auth.apikey.enabled }}
+  AUTH_API_KEY_FILE: {{ .Values.auth.apikey.file }}
+  {{ end }}
+  {{ if .Values.auth.oidc.enabled }}
+  AUTH_OIDC_CA_CERT: "/oidc_certs/ca.crt"
+  AUTH_OIDC_ISSUER_URL: {{ .Values.auth.oidc.issuer }}
   {{ end }}
   {{- range $key,$value := .Values.qkm.environment }}
   {{ $key }}: {{ $value | quote }}
@@ -49,41 +62,138 @@ ingress:
       - {{ .Values.qkm.namespace }}.{{ .Values.domainName }}
 {{- end }}
 manifests: |
-  - kind: Ethereum
-    version: 0.0.1
-    name: eth1-accounts
-    specs:
-      keystore: HashicorpKeys
-      specs:
-        mountPoint: quorum
-        address: http://vault.{{ .Values.vault.namespace }}:8200
-        tokenPath: "/vault/token/.agent-vault-token"
-        namespace: ""
-  - kind: HashicorpSecrets
-    version: 0.0.1
-    name: hashicorp-secrets
-    specs:
-      mountPoint: secret
-      address: https://vault.{{ .Values.vault.namespace }}:8200
-      tokenPath: /vault/token/.agent-vault-token
-      namespace: ''
   - kind: Node
     name: quorum-node
     version: 0.0.0
     specs:
       rpc:
-        addr: http://quorum-node1.quorum:8545
+        addr: https://quorum1.ops.consensys.net:8545
       tessera:
-        addr: http://quorum-node1.quorum:9080
+        addr: https://quorum1.ops.consensys.net:8545/tessera
+  - kind: Node
+    name: besu-node
+    version: 0.0.0
+    specs:
+      rpc:
+        addr: https://besu1.ops.consensys.net:8545
+  - kind: Node
+    name: geth-node
+    version: 0.0.0
+    specs:
+      rpc:
+        addr: https://geth.ops.consensys.net:8545
+  - kind: Role
+    name: anonymous
+    specs:
+      permission:
+        - "proxy:nodes"
+  - kind: Role
+    name: guest
+    specs:
+      permission:
+        - "read:*"
+  - kind: Role
+    name: signer
+    specs:
+      permission:
+        - "read:*"
+        - "sign:keys"
+        - "sign:ethereum"
+  - kind: Role
+    name: admin
+    specs:
+      permission:
+        - "*:*"
+  - kind: HashicorpSecrets
+    version: 0.0.1
+    name: hashicorp-secrets
+    specs:
+      mountPoint: secret
+      {{ if .Values.vault.tls.enabled }}
+      address: https://vault.{{ .Values.vault.namespace }}:8200
+      {{ else }}
+      address: http://vault.{{ .Values.vault.namespace }}:8200
+      {{ end }}
+      tokenPath: /vault/token/.agent-vault-token
+      namespace: ''
+      CACert: /vault/tls/ca.crt
+      clientCert: /vault/tls/client.crt
+      clientKey: /vault/tls/client.key
+      skipVerify: true
+  - kind: HashicorpKeys
+    version: 0.0.1
+    name: hashicorp-keys
+    specs:
+      mountPoint: quorum
+      {{ if .Values.vault.tls.enabled }}
+      address: https://vault.{{ .Values.vault.namespace }}:8200
+      {{ else }}
+      address: http://vault.{{ .Values.vault.namespace }}:8200
+      {{ end }}
+      tokenPath: /vault/token/.agent-vault-token
+      namespace: ''
+      CACert: /vault/tls/ca.crt
+      clientCert: /vault/tls/client.crt
+      clientKey: /vault/tls/client.key
+      skipVerify: true
+  - kind: LocalKeys
+    version: 0.0.1
+    name: local-keys
+    specs:
+      secretstore: HashicorpSecrets
+      specs:
+        mountPoint: secret
+        {{ if .Values.vault.tls.enabled }}
+        address: https://vault.{{ .Values.vault.namespace }}:8200
+        {{ else }}
+        address: http://vault.{{ .Values.vault.namespace }}:8200
+        {{ end }}
+        tokenPath: /vault/token/.agent-vault-token
+        namespace: ''
+        CACert: /vault/tls/ca.crt
+        clientCert: /vault/tls/client.crt
+        clientKey: /vault/tls/client.key
+        skipVerify: true
+  - kind: Ethereum
+    version: 0.0.1
+    name: eth-accounts
+    specs:
+      keystore: HashicorpKeys
+      specs:
+        mountPoint: quorum
+        {{ if .Values.vault.tls.enabled }}
+        address: https://vault.{{ .Values.vault.namespace }}:8200
+        {{ else }}
+        address: http://vault.{{ .Values.vault.namespace }}:8200
+        {{ end }}
+        tokenPath: /vault/token/.agent-vault-token
+        namespace: ''
+        CACert: /vault/tls/ca.crt
+        clientCert: /vault/tls/client.crt
+        clientKey: /vault/tls/client.key
+        skipVerify: true
+        
 vaultAgent:
   certs:
-    ca: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tDQpNSUlCNkRDQ0FZNmdBd0lCQWdJVWRBUUgrcnEyMU9pbFhQelJYUGU4TS9KSmhhSXdDZ1lJS29aSXpqMEVBd0l3DQpVakVMTUFrR0ExVUVCaE1DUmxJeERqQU1CZ05WQkFnVEJWQmhjbWx6TVE0d0RBWURWUVFIRXdWUVlYSnBjekVTDQpNQkFHQTFVRUNoTUpRMjl1YzJWdWMzbHpNUTh3RFFZRFZRUUxFd1pVWVc1MWEya3dIaGNOTWpFd09USXdNVE0xDQpPREF3V2hjTk1qWXdPVEU1TVRNMU9EQXdXakJTTVFzd0NRWURWUVFHRXdKR1VqRU9NQXdHQTFVRUNCTUZVR0Z5DQphWE14RGpBTUJnTlZCQWNUQlZCaGNtbHpNUkl3RUFZRFZRUUtFd2xEYjI1elpXNXplWE14RHpBTkJnTlZCQXNUDQpCbFJoYm5WcmFUQlpNQk1HQnlxR1NNNDlBZ0VHQ0NxR1NNNDlBd0VIQTBJQUJHbm5Hd001NGlQaXVtVUZ6WVdmDQoybDNncVQyVjRUeCtlZTQ3S0J5UGZZZlpJR2E4R0krMWI4dlpybFJOK0VuM2k5SWdLQWY4OFRCQkVDRnJSTTF3DQpMaFdqUWpCQU1BNEdBMVVkRHdFQi93UUVBd0lCQmpBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXDQpCQlN6Z01aYVRTcjN2NXcydjhsOGt6SDJxNnFQUGpBS0JnZ3Foa2pPUFFRREFnTklBREJGQWlBeExYZ1FrMHNuDQpUYlFDWVJlRzE3R2gyUkcyMVdGNkRkbTFwMUxkdzRxRXNRSWhBUFR0dWJnRFRGVVdRSy9qUGZHVHVzc2hxbWEzDQpudkJkdTNJdnlacklTWDV6DQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tDQo=
+    ca: {{ .Values.vaultAgent.certs.ca }}
     client:
-      key: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tDQpNSGNDQVFFRUlKRDJkbUpNaU9QSWlwUFBpcWl4dEREYksrS2VqWXdvbmFBd3pORXp5bUlrb0FvR0NDcUdTTTQ5DQpBd0VIb1VRRFFnQUVjWlBydDFjQ29SL3g3WGNLZG9lbGVINGJHYUk5aXpsenA1OXVjb2owc1ZTYThVZlZHUUVaDQpnRU9Md3JrY0FSd3FnK1FTZ2d1Y3FrSDhZNFhneEhrY0pRPT0NCi0tLS0tRU5EIEVDIFBSSVZBVEUgS0VZLS0tLS0=
-      crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tDQpNSUlCNlRDQ0FZK2dBd0lCQWdJVUx3UGRyaVpMdis4R29vcGtYOHpETWVHVnJGY3dDZ1lJS29aSXpqMEVBd0l3DQpVakVMTUFrR0ExVUVCaE1DUmxJeERqQU1CZ05WQkFnVEJWQmhjbWx6TVE0d0RBWURWUVFIRXdWUVlYSnBjekVTDQpNQkFHQTFVRUNoTUpRMjl1YzJWdWMzbHpNUTh3RFFZRFZRUUxFd1pVWVc1MWEya3dIaGNOTWpFd09USXdNVFl5DQpPVEF3V2hjTk1qWXdPVEU1TVRZeU9UQXdXakFSTVE4d0RRWURWUVFERXdaRGJHbGxiblF3V1RBVEJnY3Foa2pPDQpQUUlCQmdncWhrak9QUU1CQndOQ0FBUnhrK3UzVndLaEgvSHRkd3AyaDZWNGZoc1pvajJMT1hPbm4yNXlpUFN4DQpWSnJ4UjlVWkFSbUFRNHZDdVJ3QkhDcUQ1QktDQzV5cVFmeGpoZURFZVJ3bG80R0RNSUdBTUE0R0ExVWREd0VCDQovd1FFQXdJRm9EQVRCZ05WSFNVRUREQUtCZ2dyQmdFRkJRY0RBakFNQmdOVkhSTUJBZjhFQWpBQU1CMEdBMVVkDQpEZ1FXQkJTbUxTR0hSaWhiNTV3SjFMUS9DVmFhOGV2K1h6QWZCZ05WSFNNRUdEQVdnQlN6Z01aYVRTcjN2NXcyDQp2OGw4a3pIMnE2cVBQakFMQmdOVkhSRUVCREFDZ2dBd0NnWUlLb1pJemowRUF3SURTQUF3UlFJaEFJTkhobDY3DQphRkFEVzZ3SitFVHowYjVoVDBDTXIvUURGWXNpUlV0akYzSUJBaUE0MXV0aHdmK0VDdWdhSTdTanBXR0U2Qjc5DQpjZ3NlcjlWQ2NqR0I5UWxsa0E9PQ0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQ0K
+      key: {{ .Values.vaultAgent.certs.client.key }}
+      crt: {{ .Values.vaultAgent.certs.client.crt }}
 postgresql:
   certs:
-    ca: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tDQpNSUlEdFRDQ0FwMmdBd0lCQWdJVUxpdGM3bWRTTnpsWVloZWY0WmZLbDNFbGFqSXdEUVlKS29aSWh2Y05BUUVMDQpCUUF3YWpFTE1Ba0dBMVVFQmhNQ1EwZ3hEVEFMQmdOVkJBZ01CRlpoZFdReEVUQVBCZ05WQkFjTUNFeGhkWE5oDQpibTVsTVJJd0VBWURWUVFLREFsRGIyNXpaVzVUZVhNeEVUQVBCZ05WQkFzTUNGQnliM1J2WTI5c01SSXdFQVlEDQpWUVFEREFsc2IyTmhiR2h2YzNRd0hoY05NakV3T1RBeU1URXlOelE1V2hjTk1qSXdPVEF5TVRFeU56UTVXakJxDQpNUXN3Q1FZRFZRUUdFd0pEU0RFTk1Bc0dBMVVFQ0F3RVZtRjFaREVSTUE4R0ExVUVCd3dJVEdGMWMyRnVibVV4DQpFakFRQmdOVkJBb01DVU52Ym5ObGJsTjVjekVSTUE4R0ExVUVDd3dJVUhKdmRHOWpiMnd4RWpBUUJnTlZCQU1NDQpDV3h2WTJGc2FHOXpkRENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFNeFBYVHR5DQowVW5yREpRZW4wNjdvOXp1SU5wdHlZYzk2bXNxNzQ5UzErK280VG5qRmxsc0tuTXgrOWYrQjMzdEtYNkpzd1FXDQpaNWs3ZzlBd1VTV1lNbmpxQm5ySGIrNDE2WGR5Vjhhdi9ReUpyTFhhQTdWaFFhUDBuNW9jNENJYmJmaEE2S1k3DQp0NU85K1dXUmhBcDVyOFFWSzJ0YTRrdlZoQ2J6M2lHL3hSOU5rcTNzektrUEJnS2RrMFRWVkttVDd3ZjBTTHk1DQpLT3dadkNTU2NXOFRsdk5KektzZ1lhbHM5c0ZvQzh0NDBXbSs3RG5OeDBuMFkzTmNQNStrdFZWQSt1dlh3SUErDQplcS9xQVpMSW44djRhWkFDOFd3S0dUeU9RSC8zOTNsM0J2U3lUR2tlNExIMmdkQ0FFenJYQ1VjWTRVQklrS2xpDQpFaG9OclVsbnRRUkljRWNDQXdFQUFhTlRNRkV3SFFZRFZSME9CQllFRkcxZklVY3hoZWpERjRvYUh0YU43UHdlDQpWSlhLTUI4R0ExVWRJd1FZTUJhQUZHMWZJVWN4aGVqREY0b2FIdGFON1B3ZVZKWEtNQThHQTFVZEV3RUIvd1FGDQpNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFIU2NuRzVqVmVPQnZ0NU9KU0hKQkNnVTREWGZKV3BnDQpRaTVSemtueVBnY2VTRzJZUUh0ZXVLME9ObjVKbThwV3hzc3NVY3NxbFhzb3NTcktENk9FUFBPN1lIbHZaWDhJDQpoZUZQRHBZMThxTzdnd1NFVnRoZ2hRSi9qM1pPTG5KZS9YU0E3SlpQbFNxdC9CZXQxM0ZYRSttKzFYMUQrT0dUDQpWNFN2ZUxXbldrcWh5MWxXTHBXOStldHZDbXNvRzFaVklNb3ZXV2IzRjVjdjdBa0ZmTFpOc28zRk5TVXpNMnRUDQo2bDA1RkhyZ0kzVkRaM1JvL0paMFVrVnVIZ0xyS3FpajBYbGd2Yi9XZWJlYW5CQmYyYTNKM2o5djVuS0FVbGxpDQpBNHRxWEgwSlFpM1FMMWtYeUZoaTRFOXo3QWdkWnBNRVErbDNuNjN0aDVFQ1h1TWFhL05rem1FPQ0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQ0K
+    ca: {{ .Values.postgresql.certs.ca }}
     client:
-      key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQ0KTUlJRXBBSUJBQUtDQVFFQXlzUnE2Q1hvbVN3dmdoaXlnR0ZHcGNJWE5yMnhqbWpjYVBWZUU3UDZRQ1MwWktZYg0KQk11TlJYckdDclZZS3FmWGFlOGV2WEFLdmpTdWpMelNWd3JNOGlMdElJQk1qYVB6d3NZMzhYZGRpYlYzSnpIbw0KeUZPRnNYb3dqVTB4d01IK1E2QTRkR0NjVEpDNnIzelZKdEN2eWR2ZWpzSDFGZFhsdGljdkFDNll4cmVYN1gwaA0KNStZNlNwd3FwYWx4SVFUUnpra0h4ci9tYTlVMUcrQ3lTVDVzQmwxZHpXL1ZCUUx0dWlPT2w0TjlxRUZnaWx3dQ0KdnkwbkpGZnJJVHc0T1dHWVUvVXUvdmdTTEIzTWF2MnZ1amJheStRQzJpNkwzWnA0SnY4SnFrMFlaYnc3OHBEVg0KTlNUcjA1SWZGL2pTd2ZzK1RaeXk3SEtISktMRG56VGV6UWo3VndJREFRQUJBb0lCQVFDMFRKR1BXZDRKRGF3MA0KNzRjUjl1MmVDUWNoU3UzdVpybk9ycGYzeHlxNERLdEhjQmhJWEVPRFM1ZDhBQ0trMDFnTnYyM0RIelMrU3hRRw0KMndQaUdCMkRGYUZyTEFwbVRDbzl3SW9RTVliQUk5Y095Q2Rvc2pRSVMxR080OXhndlY4OWZPT1dRQzNiT3pwMQ0KUHZnK0tvU1ZadWZ3WXZGdWVDTnBwRS83eG5OZEJsOEdvQUdtMGFRNmZoQ0E1MFNodXErayt0TkRIWk1zZVdMYw0KN3lFWFdDNnNCenBmVFozZDZrVmlBbUpIdnlqMTVualpvUFVNZCs1MVNtYXcrSHBpaU9FdlFzN3A0MzBFbnVxNQ0KRzFiYTVOMTJ5T1pKVTVqRUlBQk41U3dzeGRIL09mVUpVVHlTM3BYdTZob0Z3UkFmYUVTb2tKdWFwSjhobG5pNw0KbHdIMDBFNnBBb0dCQVBkdmdOTFRlT2NaNkpjeHFzc3dsd2xyd2hXWS83ZG9FZXl5QldiVUxPdUIvdGE0UkF0Zg0KcjlaSXFVZ1JjeVd3MWIzTlViOFd4eWQ3cnB6MG9qTElGTk9PZkNaUDdyZ20wUXRLL1Znb0REd2VmUkFYcy9kbg0KK2RHOVV1bWZkdmIyYjFuMnhEK2hxa0kvNDhRbTl6MXQxemJpZ0hvMWU2Nk1tSnVuSXA1K0o0bWRBb0dCQU5ISg0KSFNta3lyQThyZ2NXMk9rSWJqdk1YV0R6cytyUEwzUW9RSXN2RjNWMFpIbFcxQTRYR2d3eEVJdGFJZHdTU2xJUA0KcXp1MnFaZnh3YW9ZYWt5R2E0cm0rVHVvR1NodXRIUUZBOXhxNWlVbTVISTRkaEJFZ3NXSWNvZFk5eUNPVS9ucQ0KVGgvZTIzbTFmVHFmZm80T1pwVUVmbXF1L3BIa2duN2UwVGxobHRDREFvR0JBUGEzM01qYkNldk5YcWtiWWdTMg0KajNOYVdpejA0TTI4M0ZxWjYxN3I0MXAweFdqT1ZUTE9GMk5nRWtNRSt6Nnl3MzA4cyswSXhrMnRPcC9RSWNibQ0KMERWZUZwYVJEeVBadUlrOUhiNEFPS3JkYjdCVElpUm9MYVlmMUFPVStLY3BkRUJOR01PbDdFR2d1UGhHTGpLMw0KU21lMGs0ekh0V3FIVUVlcjhJMytsbWZWQW9HQUhKWE0xWG5RN0lhNEo5c2pIMDI0eDRrblNDaXM0VmZ0M1dRRw0KdDNCcFArWG1NdXB6NXArYk93SU1nUkI5QUtHMVlzMGp4ZlV6MHJKc2N5TDBpUXpmNW9ObWZveC9NUlUwbllKNQ0KYmpWYXVzRTc2NXhwNmZtTDRDS2hpSFBFNkxpOEZKZXFvWWthV3RFeUNTVG1kN0RhcFgrQlFrUXFCL01kSFBCNw0KamRnUVZzVUNnWUJBVzhnSUxhbG13WWZXcmRjSzVzdzYrdk9BbVZOYTBwZnA2VVhQaVNTc0RERGNtSnlRS2czTA0KTVMrVTRxakw3UmRjQXZTVE83Z3lrL3lPMnJ6aUlRa2dVTGdxL1dBeklXcDVUVkNQRTZuWUZmMHFSUGRiclM3Ng0KbGRoc0xuc3ZlR0NyOGRvMkFrVm1yL21KcitJd1NPRUNCUXRoTFVxUU1SUEhXR01uYmgzbC93PT0NCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tDQo=
-      crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tDQpNSUlEV3pDQ0FrTUNGRlZPQ3ZNOHQyeWhwYlNUb1V3dkVYRENrTFN4TUEwR0NTcUdTSWIzRFFFQkN3VUFNR294DQpDekFKQmdOVkJBWVRBa05JTVEwd0N3WURWUVFJREFSV1lYVmtNUkV3RHdZRFZRUUhEQWhNWVhWellXNXVaVEVTDQpNQkFHQTFVRUNnd0pRMjl1YzJWdVUzbHpNUkV3RHdZRFZRUUxEQWhRY205MGIyTnZiREVTTUJBR0ExVUVBd3dKDQpiRzlqWVd4b2IzTjBNQjRYRFRJeE1Ea3dNakV4TkRFeE9Gb1hEVEl5TURrd01qRXhOREV4T0Zvd2FqRUxNQWtHDQpBMVVFQmhNQ1EwZ3hEVEFMQmdOVkJBZ01CRlpoZFdReEVUQVBCZ05WQkFjTUNFeGhkWE5oYm01bE1SSXdFQVlEDQpWUVFLREFsRGIyNXpaVzVUZVhNeEVUQVBCZ05WQkFzTUNGQnliM1J2WTI5c01SSXdFQVlEVlFRRERBbHNiMk5oDQpiR2h2YzNRd2dnRWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUURLeEdyb0plaVpMQytDDQpHTEtBWVVhbHdoYzJ2YkdPYU54bzlWNFRzL3BBSkxSa3Boc0V5NDFGZXNZS3RWZ3FwOWRwN3g2OWNBcStOSzZNDQp2TkpYQ3N6eUl1MGdnRXlOby9QQ3hqZnhkMTJKdFhjbk1laklVNFd4ZWpDTlRUSEF3ZjVEb0RoMFlKeE1rTHF2DQpmTlVtMEsvSjI5Nk93ZlVWMWVXMkp5OEFMcGpHdDVmdGZTSG41anBLbkNxbHFYRWhCTkhPU1FmR3YrWnIxVFViDQo0TEpKUG13R1hWM05iOVVGQXUyNkk0NlhnMzJvUVdDS1hDNi9MU2NrVitzaFBEZzVZWmhUOVM3KytCSXNIY3hxDQovYSs2TnRyTDVBTGFMb3ZkbW5nbS93bXFUUmhsdkR2eWtOVTFKT3ZUa2g4WCtOTEIrejVObkxMc2NvY2tvc09mDQpOTjdOQ1B0WEFnTUJBQUV3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUJVa2xBZ2Vub3RGMWl1RExSOWphdWprDQpISjVoaU1kNTJQQU9MVFF4M2J3N1N5TVRrZDlpYkZOOGlYTytUeE9YaXlUR2NVbVJYNG1HZVNvTzlTUjFkb1FQDQozMHhVb0ZNWmdmYmFCRzRHaTdnRUtvc0ZRTWloM3B1cVc2T0trek9ISWVubVFBbHo2dnp2eXF6ZElyeUxhZnB4DQp2R09jK0JnSE5ZL1JMMWNnMjlZNlR0Z3Z0aVpERlJUZDZJcm1XZlQ2YllYYWR2NFRHdy9seWFaNXJicEtLay9IDQp1KyttM3hFRXFxV2dxOCtPYkI0UWZGRCtSQkIvdTRTWmRTQ0M1NVBxUEUyZndONnBxN0VzK0Z6RGQ2MDNsNXFtDQpWUC9wNGZkUE9US0tFdmZrZlV0b3M4YmVBeVlDTUpNOWgvTzgzdytxdnFlZGZnMEQzbGRDazlXbEE1UnRINDg9DQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tDQo=
+      key: {{ .Values.postgresql.certs.client.key }}
+      crt: {{ .Values.postgresql.certs.client.crt }}
+auth:
+  apikey:
+    enabled: {{ .Values.auth.apikey.enabled }}
+    file: {{ .Values.auth.apikey.file }}
+  oidc:
+    enabled: {{ .Values.auth.oidc.enabled }}
+    ca: {{ .Values.auth.oidc.ca }}
+    issuer: {{ .Values.auth.oidc.issuer }}
+  tls:
+    enabled: {{ .Values.auth.tls.enabled }}
+    cacert: {{ .Values.auth.tls.cacert }}
+    secretName: {{ .Values.auth.tls.secretName }}
