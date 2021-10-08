@@ -12,6 +12,8 @@ This repository contains an implementation example on how to deploy the Quorum K
 helmfile apply --suppress-secrets
 ```
 
+You may find the stores manifests definition in the dedicated section [here](./values/qkm.yaml.gotmpl) and then adapt it to yours needs following instructions found in doc
+
 2. Once deployed you could easily test the Quorum Key Manager API in http://localhost:8080:
 
 ```
