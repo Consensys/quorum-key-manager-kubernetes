@@ -25,3 +25,23 @@ vault:
     sha256: {{ env "VAULT_PLUGIN_SHA256SUM" | default "47c80d64e72ca0252b40baeb508b7c61692dc031b103bada20595a35108df12f" }}
 
 domainName: {{ env "DOMAIN_NAME" }}
+
+vaultAgent:
+  certs:
+    ca: {{ env "QKM_VAULTAGENT_CA" }}
+    client:
+      key: {{ env "QKM_VAULTAGENT_CLIENT_KEY" }}
+      crt: {{ env "QKM_VAULTAGENT_CLIENT_CRT" }}
+postgresql:
+  certs:
+    ca: {{ env "QKM_PG_CA" }}
+    client:
+      key: {{ env "QKM_PG_CLIENT_KEY" }}
+      crt: {{ env "QKM_PG_CLIENT_CRT" }}
+
+auth:
+  oidc:
+    ca: {{ env "QKM_AUTH_OIDC_CA"}}
+    issuer: {{ env "QKM_AUTH_OIDC_ISSUER_URL"}}
+  tls:
+    cacert: {{ env "QKM_AUTH_TLS_CA"}}
