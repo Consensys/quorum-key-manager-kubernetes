@@ -21,14 +21,3 @@ auth:
   tls:
     enabled: true
     secretName: "qkm-tls"
-stores:
-  akv:
-    vaultName: quorumkeymanager
-    tenantID: 
-    clientID: 
-    clientSecret: 
-  aws:
-    accessID: 
-    secretKey: 
-    region: eu-west-3
-    debug: false
