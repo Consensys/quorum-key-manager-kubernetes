@@ -14,24 +14,9 @@ qkm:
   environment: {}
   environmentSecrets: {}
 
-vaultOperator:
-  namespace: {{ env "VAULT_OPERATOR_NAMESPACE" | default "vault-operator" }}
-
-vault:
-  namespace: {{ env "VAULT_NAMESPACE" | default ( env "QKM_NAMESPACE" | default $defaultNamespace ) }}
-  plugin:
-    file: {{ env "VAULT_PLUGIN_FILE" | default "quorum" }}
-    tag: {{ env "VAULT_PLUGIN_TAG" | default "v1.0.0" }}
-    sha256: {{ env "VAULT_PLUGIN_SHA256SUM" | default "47c80d64e72ca0252b40baeb508b7c61692dc031b103bada20595a35108df12f" }}
 
 domainName: {{ env "DOMAIN_NAME" }}
 
-vaultAgent:
-  certs:
-    ca: {{ env "QKM_VAULTAGENT_CA" }}
-    client:
-      key: {{ env "QKM_VAULTAGENT_CLIENT_KEY" }}
-      crt: {{ env "QKM_VAULTAGENT_CLIENT_CRT" }}
 postgresql:
   certs:
     ca: {{ env "QKM_PG_CA" }}

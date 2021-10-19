@@ -2,19 +2,9 @@ image:
   {{- .Values.qkm.image | toYaml | nindent 2 }}
   pullPolicy: {{ .Values.qkm.image.pullPolicy }}
 environment:
-  VAULT_ADDR: http://vault.{{ .Values.vault.namespace }}:8200
-  {{ if .Values.vault.tls.enabled }}
-  VAULT_ADDR: https://vault.{{ .Values.vault.namespace }}:8200
-  VAULT_CACERT: "/vault/tls/ca.crt"
-  VAULT_CAPATH: "/vault/tls"
-  VAULT_CLIENT_CERT: "/vault/tls/client.crt"
-  VAULT_CLIENT_KEY: "/vault/tls/client.key"
-  VAULT_SKIP_VERIFY: {{ .Values.vault.tls.skipVerify }}
-  VAULT_TLS_SERVER_NAME: vault.{{ .Values.vault.namespace }}
-  {{ end }}
   HTTP_HOST: 0.0.0.0
   LOG_FORMAT: json
-  DB_HOST: postgres-postgresql.{{ .Values.vault.namespace }}
+  DB_HOST: postgres-postgresql.{{ .Values.qkm.namespace }}
   DB_PORT: 5432
   DB_DATABASE: {{ .Values.postgresql.Database }}
   DB_PASSWORD: "1234567890"
@@ -44,8 +34,6 @@ environmentSecrets:
   {{- range $key,$value := .Values.qkm.environmentSecrets }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
-vaultAgent:
-  role: "quorumkeymanager"
 {{- if .Values.domainName }}
 ingress:
   enabled: false
@@ -166,12 +154,6 @@ manifests: |-
   {{ end }}
   {{ end }}
 
-vaultAgent:
-  certs:
-    ca: {{ .Values.vaultAgent.certs.ca }}
-    client:
-      key: {{ .Values.vaultAgent.certs.client.key }}
-      crt: {{ .Values.vaultAgent.certs.client.crt }}
 postgresql:
   certs:
     ca: {{ .Values.postgresql.certs.ca }}

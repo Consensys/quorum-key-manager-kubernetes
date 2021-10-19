@@ -1,13 +1,5 @@
 observability:
   enabled: false
-vault:
-  nodeSelector: vault
-  dedicatedNode: false
-  tls:
-    enabled: true
-    skipVerify: false
-  audit:
-    enabled: false
 postgresql:
   tls:
     enabled: true

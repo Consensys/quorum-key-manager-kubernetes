@@ -22,9 +22,5 @@ environments:
 repositories:
   - name: consensys
     url: https://artifacts.consensys.net/public/helm/helm/charts/
-  - name: banzaicloud
-    url: https://kubernetes-charts.banzaicloud.com
-  - name: incubator
-    url: https://charts.helm.sh/incubator
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
