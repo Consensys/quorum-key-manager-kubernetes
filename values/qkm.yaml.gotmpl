@@ -61,118 +61,111 @@ ingress:
     - hosts:
       - {{ .Values.qkm.namespace }}.{{ .Values.domainName }}
 {{- end }}
-manifests: |
+      
+manifests: |-
+  {{ if .Values.nodes }}
+  {{ range .Values.nodes }}
   - kind: Node
-    name: quorum-node
-    version: 0.0.0
+    name: {{ .name }}
+    version: {{ .version }}
     specs:
+    {{ if .specs.rpc }}
+    {{ if .specs.rpc.addr }}
       rpc:
-        addr: https://quorum1.ops.consensys.net:8545
+        addr: {{ .specs.rpc.addr }}
+    {{ end }}
+    {{ end }}
+    {{ if .specs.tessera }}
+    {{ if .specs.tessera.addr }}
       tessera:
-        addr: https://quorum1.ops.consensys.net:8545/tessera
-  - kind: Node
-    name: besu-node
-    version: 0.0.0
-    specs:
-      rpc:
-        addr: https://besu1.ops.consensys.net:8545
-  - kind: Node
-    name: geth-node
-    version: 0.0.0
-    specs:
-      rpc:
-        addr: https://geth.ops.consensys.net:8545
+        addr: {{ .specs.tessera.addr }}
+    {{ end }}
+    {{ end }}
+  {{ end }}
+  {{ end }}
+  {{ if .Values.roles }}
+  {{ range .Values.roles }}
   - kind: Role
-    name: anonymous
+    name: {{ .name }}
     specs:
       permission:
-        - "proxy:nodes"
-  - kind: Role
-    name: guest
-    specs:
-      permission:
-        - "read:*"
-  - kind: Role
-    name: signer
-    specs:
-      permission:
-        - "read:*"
-        - "sign:keys"
-        - "sign:ethereum"
-  - kind: Role
-    name: admin
-    specs:
-      permission:
-        - "*:*"
+        {{- range .specs.permission }}
+          - {{ . }}
+        {{- end }}
+  {{ end }}
+  {{ end }}
+  {{ if .Values.stores.secrets }}
+  {{ if .Values.stores.secrets.akv }}
+  {{ range .Values.stores.secrets.akv }}
+  - kind: AKVSecrets
+    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
+    {{ tpl ( readFile "config/akv-specs.conf") . }}
+  {{ end }}
+  {{ end }}
+  {{ if .Values.stores.secrets.aws }}
+  {{ range .Values.stores.secrets.aws }}
+  - kind: AWSSecrets
+    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
+    {{ tpl ( readFile "config/aws-specs.conf") . }}
+  {{ end }}
+  {{ end }}
+  {{ if .Values.stores.secrets.hashicorp }}
+  {{ range .Values.stores.secrets.hashicorp }}
   - kind: HashicorpSecrets
-    version: 0.0.1
-    name: hashicorp-secrets
-    specs:
-      mountPoint: secret
-      {{ if .Values.vault.tls.enabled }}
-      address: https://vault.{{ .Values.vault.namespace }}:8200
-      {{ else }}
-      address: http://vault.{{ .Values.vault.namespace }}:8200
-      {{ end }}
-      tokenPath: /vault/token/.agent-vault-token
-      namespace: ''
-      CACert: /vault/tls/ca.crt
-      clientCert: /vault/tls/client.crt
-      clientKey: /vault/tls/client.key
-      skipVerify: true
+    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
+    {{ tpl ( readFile "config/hashicorp-specs.conf") . }}
+  {{ end }}
+  {{ end }}
+  {{ end }}
+  {{ if .Values.stores.keys }}
+  {{ if .Values.stores.keys.akv }}
+  {{ range .Values.stores.keys.akv }}
+  - kind: AKVKeys
+    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
+    {{ tpl ( readFile "config/akv-specs.conf") . }}
+  {{ end }}
+  {{ end }}
+  
+  {{ if .Values.stores.keys.aws }}
+  {{ range .Values.stores.keys.aws }}
+  - kind: AWSKeys
+    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
+    {{ tpl ( readFile "config/aws-specs.conf") . }}
+  {{ end }}
+  {{ end }}
+  {{ if .Values.stores.keys.hashicorp }}
+  {{ range .Values.stores.keys.hashicorp }}
   - kind: HashicorpKeys
-    version: 0.0.1
-    name: hashicorp-keys
-    specs:
-      mountPoint: quorum
-      {{ if .Values.vault.tls.enabled }}
-      address: https://vault.{{ .Values.vault.namespace }}:8200
-      {{ else }}
-      address: http://vault.{{ .Values.vault.namespace }}:8200
-      {{ end }}
-      tokenPath: /vault/token/.agent-vault-token
-      namespace: ''
-      CACert: /vault/tls/ca.crt
-      clientCert: /vault/tls/client.crt
-      clientKey: /vault/tls/client.key
-      skipVerify: true
+    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
+    {{ tpl ( readFile "config/hashicorp-specs.conf") . }}
+  {{ end }}
+  {{ end }}
+  {{ if .Values.stores.keys.local }}
+  {{ range .Values.stores.keys.local }}
   - kind: LocalKeys
-    version: 0.0.1
-    name: local-keys
-    specs:
-      secretstore: HashicorpSecrets
-      specs:
-        mountPoint: secret
-        {{ if .Values.vault.tls.enabled }}
-        address: https://vault.{{ .Values.vault.namespace }}:8200
-        {{ else }}
-        address: http://vault.{{ .Values.vault.namespace }}:8200
-        {{ end }}
-        tokenPath: /vault/token/.agent-vault-token
-        namespace: ''
-        CACert: /vault/tls/ca.crt
-        clientCert: /vault/tls/client.crt
-        clientKey: /vault/tls/client.key
-        skipVerify: true
+    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
+    {{ tpl ( readFile "config/hashicorp-specs.conf") . }}
+  {{ end }}
+  {{ end }}
+  {{ end }}
+  {{ if .Values.stores.ethereum }}
+  {{ range .Values.stores.ethereum }}
   - kind: Ethereum
-    version: 0.0.1
-    name: eth-accounts
-    specs:
-      keystore: HashicorpKeys
-      specs:
-        mountPoint: quorum
-        {{ if .Values.vault.tls.enabled }}
-        address: https://vault.{{ .Values.vault.namespace }}:8200
-        {{ else }}
-        address: http://vault.{{ .Values.vault.namespace }}:8200
-        {{ end }}
-        tokenPath: /vault/token/.agent-vault-token
-        namespace: ''
-        CACert: /vault/tls/ca.crt
-        clientCert: /vault/tls/client.crt
-        clientKey: /vault/tls/client.key
-        skipVerify: true
-        
+    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
+     specs:
+     keystore: {{ .keystore }}
+      {{ if or (eq .keystore "HashicorpKeys") (eq .keystore "LocalKeys") }}
+      {{ tpl ( readFile "config/hashicorp-specs.conf") . }}
+      {{ end }}
+      {{ if or (eq .keystore "AWSKeys") (eq .keystore "AWSecrets") }}
+      {{ tpl ( readFile "config/aws-specs.conf") . }}
+      {{ end }}
+      {{ if or (eq .keystore "AKVKeys") (eq .keystore "AKVSecrets") }}
+      {{ tpl ( readFile "config/akv-specs.conf") . }}
+      {{ end }}
+  {{ end }}
+  {{ end }}
+
 vaultAgent:
   certs:
     ca: {{ .Values.vaultAgent.certs.ca }}
