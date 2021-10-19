@@ -98,22 +98,22 @@ manifests: |-
   {{ if .Values.stores.secrets.akv }}
   {{ range .Values.stores.secrets.akv }}
   - kind: AKVSecrets
-    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
-    {{ tpl ( readFile "config/akv-specs.conf") . }}
+    {{ tpl ( readFile "config/header.yaml") . | indent 4 }}
+    {{ tpl ( readFile "config/akv-specs.yaml") . }}
   {{ end }}
   {{ end }}
   {{ if .Values.stores.secrets.aws }}
   {{ range .Values.stores.secrets.aws }}
   - kind: AWSSecrets
-    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
-    {{ tpl ( readFile "config/aws-specs.conf") . }}
+    {{ tpl ( readFile "config/header.yaml") . | indent 4 }}
+    {{ tpl ( readFile "config/aws-specs.yaml") . }}
   {{ end }}
   {{ end }}
   {{ if .Values.stores.secrets.hashicorp }}
   {{ range .Values.stores.secrets.hashicorp }}
   - kind: HashicorpSecrets
-    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
-    {{ tpl ( readFile "config/hashicorp-specs.conf") . }}
+    {{ tpl ( readFile "config/header.yaml") . | indent 4 }}
+    {{ tpl ( readFile "config/hashicorp-specs.yaml") . }}
   {{ end }}
   {{ end }}
   {{ end }}
@@ -121,47 +121,47 @@ manifests: |-
   {{ if .Values.stores.keys.akv }}
   {{ range .Values.stores.keys.akv }}
   - kind: AKVKeys
-    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
-    {{ tpl ( readFile "config/akv-specs.conf") . }}
+    {{ tpl ( readFile "config/header.yaml") . | indent 4 }}
+    {{ tpl ( readFile "config/akv-specs.yaml") . }}
   {{ end }}
   {{ end }}
   
   {{ if .Values.stores.keys.aws }}
   {{ range .Values.stores.keys.aws }}
   - kind: AWSKeys
-    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
-    {{ tpl ( readFile "config/aws-specs.conf") . }}
+    {{ tpl ( readFile "config/header.yaml") . | indent 4 }}
+    {{ tpl ( readFile "config/aws-specs.yaml") . }}
   {{ end }}
   {{ end }}
   {{ if .Values.stores.keys.hashicorp }}
   {{ range .Values.stores.keys.hashicorp }}
   - kind: HashicorpKeys
-    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
-    {{ tpl ( readFile "config/hashicorp-specs.conf") . }}
+    {{ tpl ( readFile "config/header.yaml") . | indent 4 }}
+    {{ tpl ( readFile "config/hashicorp-specs.yaml") . }}
   {{ end }}
   {{ end }}
   {{ if .Values.stores.keys.local }}
   {{ range .Values.stores.keys.local }}
   - kind: LocalKeys
-    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
-    {{ tpl ( readFile "config/hashicorp-specs.conf") . }}
+    {{ tpl ( readFile "config/header.yaml") . | indent 4 }}
+    {{ tpl ( readFile "config/hashicorp-specs.yaml") . }}
   {{ end }}
   {{ end }}
   {{ end }}
   {{ if .Values.stores.ethereum }}
   {{ range .Values.stores.ethereum }}
   - kind: Ethereum
-    {{ tpl ( readFile "config/header.conf") . | indent 4 }}
+    {{ tpl ( readFile "config/header.yaml") . | indent 4 }}
      specs:
      keystore: {{ .keystore }}
       {{ if or (eq .keystore "HashicorpKeys") (eq .keystore "LocalKeys") }}
-      {{ tpl ( readFile "config/hashicorp-specs.conf") . }}
+      {{ tpl ( readFile "config/hashicorp-specs.yaml") . }}
       {{ end }}
       {{ if or (eq .keystore "AWSKeys") (eq .keystore "AWSecrets") }}
-      {{ tpl ( readFile "config/aws-specs.conf") . }}
+      {{ tpl ( readFile "config/aws-specs.yaml") . }}
       {{ end }}
       {{ if or (eq .keystore "AKVKeys") (eq .keystore "AKVSecrets") }}
-      {{ tpl ( readFile "config/akv-specs.conf") . }}
+      {{ tpl ( readFile "config/akv-specs.yaml") . }}
       {{ end }}
   {{ end }}
   {{ end }}
