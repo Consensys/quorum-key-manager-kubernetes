@@ -1,0 +1,5 @@
+specs:
+    accessID: {{ .accessID }}
+    secretKey: {{ .secretKey }}
+    region: {{ .region }}
+    debug: {{ .debug }}

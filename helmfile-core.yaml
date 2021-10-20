@@ -3,15 +3,8 @@ bases:
   - helmfile-common.yaml
 ---
 releases:
-  - name: vault
-    namespace: {{ .Values.vault.namespace }}
-    chart: incubator/raw
-    version: 0.2.3
-    atomic: true
-    values:
-      - values/vault.yaml.gotmpl
   - name: postgres
-    namespace: {{ .Values.vault.namespace }}
+    namespace: {{ .Values.qkm.namespace }}
     chart: bitnami/postgresql
     version: 10.9.5
     atomic: true
@@ -21,9 +14,8 @@ releases:
     namespace: {{ .Values.qkm.namespace }}
     chart: consensys/quorumkeymanager
     atomic: true
-    version: 1.0.13
+    version: 1.1.0
     needs:
-      - {{ .Values.vault.namespace }}/vault
-      - {{ .Values.vault.namespace }}/postgres
+      - {{ .Values.qkm.namespace }}/postgres
     values:
       - values/qkm.yaml.gotmpl

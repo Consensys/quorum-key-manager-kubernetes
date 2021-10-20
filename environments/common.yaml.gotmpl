@@ -1,6 +1,7 @@
 ---
 {{ $defaultNamespace := "qa-qkm" }}
-{{ $tag := "v21.9.0" }}
+{{ $tag := "v21.9.1" }}
+
 
 qkm:
   namespace: {{ env "QKM_NAMESPACE" | default $defaultNamespace  }}
@@ -13,14 +14,50 @@ qkm:
   environment: {}
   environmentSecrets: {}
 
-vaultOperator:
-  namespace: {{ env "VAULT_OPERATOR_NAMESPACE" | default "vault-operator" }}
-
-vault:
-  namespace: {{ env "VAULT_NAMESPACE" | default ( env "QKM_NAMESPACE" | default $defaultNamespace ) }}
-  plugin:
-    file: {{ env "VAULT_PLUGIN_FILE" | default "quorum" }}
-    tag: {{ env "VAULT_PLUGIN_TAG" | default "v1.0.0" }}
-    sha256: {{ env "VAULT_PLUGIN_SHA256SUM" | default "47c80d64e72ca0252b40baeb508b7c61692dc031b103bada20595a35108df12f" }}
 
 domainName: {{ env "DOMAIN_NAME" }}
+
+postgresql:
+  certs:
+    ca: {{ env "QKM_PG_CA" }}
+    client:
+      key: {{ env "QKM_PG_CLIENT_KEY" }}
+      crt: {{ env "QKM_PG_CLIENT_CRT" }}
+
+auth:
+  oidc:
+    ca: {{ env "QKM_AUTH_OIDC_CA"}}
+    issuer: {{ env "QKM_AUTH_OIDC_ISSUER_URL"}}
+  tls:
+    cacert: {{ env "QKM_AUTH_TLS_CA"}}
+
+stores:
+  secrets:
+    akv:
+      - name: {{ requiredEnv "QKM_AKV_SEC_STORE_NAME" }}
+        version: {{ requiredEnv "QKM_AKV_SEC_STORE_VERSION" }}
+        vaultName: {{ requiredEnv "QKM_AKV_SEC_VAULT_NAME" }}
+        tenantID: {{ requiredEnv "QKM_AKV_SEC_STORE_TENANT_ID" }}
+        clientID: {{ requiredEnv "QKM_AKV_SEC_STORE_CLIENT_ID" }}
+        clientSecret: {{ requiredEnv "QKM_AKV_SEC_STORE_CLIENT_SECRET" }}
+    aws: {}
+    hashicorp: {}
+  keys:
+    akv:
+      - name: {{ requiredEnv "QKM_AKV_KEY_STORE_NAME" }}
+        version: {{ requiredEnv "QKM_AKV_KEY_STORE_VERSION" }}
+        vaultName: {{ requiredEnv "QKM_AKV_KEY_VAULT_NAME" }}
+        tenantID: {{ requiredEnv "QKM_AKV_KEY_STORE_TENANT_ID" }}
+        clientID: {{ requiredEnv "QKM_AKV_KEY_STORE_CLIENT_ID" }}
+        clientSecret: {{ requiredEnv "QKM_AKV_KEY_STORE_CLIENT_SECRET" }}
+    aws: {}
+    hashicorp: {}
+    local: {}
+  ethereum:
+    - name: {{ requiredEnv "QKM_AKV_ETH_STORE_NAME" }}
+      keystore: "AKVKeys"
+      version: {{ requiredEnv "QKM_AKV_ETH_STORE_VERSION" }}
+      vaultName: {{ requiredEnv "QKM_AKV_ETH_VAULT_NAME" }}
+      tenantID: {{ requiredEnv "QKM_AKV_ETH_STORE_TENANT_ID" }}
+      clientID: {{ requiredEnv "QKM_AKV_ETH_STORE_CLIENT_ID" }}
+      clientSecret: {{ requiredEnv "QKM_AKV_ETH_STORE_CLIENT_SECRET" }}
