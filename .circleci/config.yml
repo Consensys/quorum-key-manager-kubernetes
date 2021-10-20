@@ -114,7 +114,6 @@ workflows:
             branches:
               only:
                 - main
-                - qkm_tls_postgres_fixes
   schedule-clean-namespaces:
     triggers:
       - schedule:
