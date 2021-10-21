@@ -65,3 +65,7 @@ fill the `postgresql` part in the file below.
 [here](./values/qkm.yaml.gotmpl)
 
 format is base64 pem encoded file for each value
+
+# 4 Manifests
+
+Manifests values must be passed to the chart using the `B64_MANIFESTS` env var. This env var is required. 
