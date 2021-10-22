@@ -1,5 +1,0 @@
-specs:
-    vaultName: {{ .vaultName }}
-    tenantID: {{ .tenantID }}
-    clientID: {{ .clientID }}
-    clientSecret: {{ .clientSecret }}

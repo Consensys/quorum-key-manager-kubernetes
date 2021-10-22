@@ -1,9 +1,0 @@
-specs:
-    mountPoint: {{ .mountPoint }}
-    address: {{ .address }}
-    tokenPath: {{ .tokenPath }}
-    namespace: {{ .namespace }}
-    CACert: {{ .caCert }}
-    clientCert: {{ .clientCert }}
-    clientKey: {{ .clientKey }}
-    skipVerify: {{ .skipVerify }}

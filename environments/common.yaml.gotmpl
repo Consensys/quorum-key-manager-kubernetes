@@ -17,6 +17,8 @@ qkm:
 
 domainName: {{ env "DOMAIN_NAME" }}
 
+b64Manifests: {{ requiredEnv "B64_MANIFESTS" }}
+
 postgresql:
   certs:
     ca: {{ env "QKM_PG_CA" }}
@@ -30,34 +32,3 @@ auth:
     issuer: {{ env "QKM_AUTH_OIDC_ISSUER_URL"}}
   tls:
     cacert: {{ env "QKM_AUTH_TLS_CA"}}
-
-stores:
-  secrets:
-    akv:
-      - name: {{ requiredEnv "QKM_AKV_SEC_STORE_NAME" }}
-        version: {{ requiredEnv "QKM_AKV_SEC_STORE_VERSION" }}
-        vaultName: {{ requiredEnv "QKM_AKV_SEC_VAULT_NAME" }}
-        tenantID: {{ requiredEnv "QKM_AKV_SEC_STORE_TENANT_ID" }}
-        clientID: {{ requiredEnv "QKM_AKV_SEC_STORE_CLIENT_ID" }}
-        clientSecret: {{ requiredEnv "QKM_AKV_SEC_STORE_CLIENT_SECRET" }}
-    aws: {}
-    hashicorp: {}
-  keys:
-    akv:
-      - name: {{ requiredEnv "QKM_AKV_KEY_STORE_NAME" }}
-        version: {{ requiredEnv "QKM_AKV_KEY_STORE_VERSION" }}
-        vaultName: {{ requiredEnv "QKM_AKV_KEY_VAULT_NAME" }}
-        tenantID: {{ requiredEnv "QKM_AKV_KEY_STORE_TENANT_ID" }}
-        clientID: {{ requiredEnv "QKM_AKV_KEY_STORE_CLIENT_ID" }}
-        clientSecret: {{ requiredEnv "QKM_AKV_KEY_STORE_CLIENT_SECRET" }}
-    aws: {}
-    hashicorp: {}
-    local: {}
-  ethereum:
-    - name: {{ requiredEnv "QKM_AKV_ETH_STORE_NAME" }}
-      keystore: "AKVKeys"
-      version: {{ requiredEnv "QKM_AKV_ETH_STORE_VERSION" }}
-      vaultName: {{ requiredEnv "QKM_AKV_ETH_VAULT_NAME" }}
-      tenantID: {{ requiredEnv "QKM_AKV_ETH_STORE_TENANT_ID" }}
-      clientID: {{ requiredEnv "QKM_AKV_ETH_STORE_CLIENT_ID" }}
-      clientSecret: {{ requiredEnv "QKM_AKV_ETH_STORE_CLIENT_SECRET" }}
