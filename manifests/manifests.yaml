@@ -1,0 +1,84 @@
+- kind: Node
+    name: quorum-node
+    version: 0.0.0
+    specs:
+      rpc:
+        addr: http://quorum1:8545
+      tessera:
+        addr: http://tessera1:9080
+- kind: Node
+  name: besu-node
+  version: 0.0.0
+  specs:
+    rpc:
+      addr: http://validator1:8545
+- kind: Node
+  name: geth-node
+  version: 0.0.0
+  specs:
+    rpc:
+      addr: http://geth:8545
+- kind: Role
+  name: anonymous
+  specs:
+    permission:
+      - "proxy:nodes"
+- kind: Role
+  name: guest
+  specs:
+    permission:
+      - "read:*"
+- kind: Role
+  name: signer
+  specs:
+    permission:
+      - "read:*"
+      - "sign:keys"
+      - "sign:ethereum"
+- kind: Role
+  name: admin
+  specs:
+    permission:
+      - "*:*"
+- kind: AKVSecrets
+  version: 0.0.1
+  name: akv-secrets
+  specs:
+    vaultName: quorumkeymanager
+    tenantID: ${QKM_AKV_TENANT_ID}
+    clientID: ${QKM_AKV_CLIENT_ID}
+    clientSecret: ${QKM_AKV_CLIENT_SECRET}
+- kind: AKVKeys
+  version: 0.0.1
+  name: akv-keys
+  specs:
+    vaultName: quorumkeymanager
+    tenantID: ${QKM_AKV_TENANT_ID}
+    clientID: ${QKM_AKV_CLIENT_ID}
+    clientSecret: ${QKM_AKV_CLIENT_SECRET}
+- kind: AWSSecrets
+  version: 0.0.1
+  name: aws-secrets
+  specs:
+    accessID: ${QKM_AWS_ACCESS_ID}
+    secretKey: ${QKM_AWS_SECRET_KEY}
+    region: ${QKM_AWS_REGION}
+    debug: false
+- kind: AWSKeys
+  version: 0.0.1
+  name: aws-keys
+  specs:
+    accessID: ${QKM_AWS_ACCESS_ID}
+    secretKey: ${QKM_AWS_SECRET_KEY}
+    region: ${QKM_AWS_REGION}
+    debug: false
+- kind: Ethereum
+  version: 0.0.1
+  name: eth-accounts
+  specs:
+    keystore: AWSKeys
+    specs:
+      accessID: ${QKM_AWS_ACCESS_ID}
+      secretKey: ${QKM_AWS_SECRET_KEY}
+      region: ${QKM_AWS_REGION}
+      debug: false
