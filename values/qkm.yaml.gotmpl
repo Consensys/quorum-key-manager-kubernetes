@@ -6,7 +6,7 @@ environment:
   LOG_FORMAT: json
   DB_HOST: postgres-postgresql.{{ .Values.qkm.namespace }}
   DB_PORT: 5432
-  DB_DATABASE: {{ .Values.postgresql.Database }}
+  DB_DATABASE: {{ .Values.postgresql.database }}
   DB_PASSWORD: "1234567890"
   {{ if .Values.postgresql.tls.enabled }}
   DB_TLS_SSLMODE: "require"
@@ -25,6 +25,7 @@ environment:
   {{ end }}
   {{ if .Values.auth.oidc.enabled }}
   AUTH_OIDC_CA_CERT: "/oidc_certs/ca.crt"
+  AUTH_OIDC_PUB_KEY: "/oidc_certs/oidc.pub"
   AUTH_OIDC_ISSUER_URL: {{ .Values.auth.oidc.issuer }}
   {{ end }}
   {{- range $key,$value := .Values.qkm.environment }}
@@ -52,7 +53,7 @@ ingress:
       
 manifests: |-
   {{ if .Values.b64Manifests }}
-    {{- toYaml .Values.b64Manifests | b64dec }}
+  {{- toYaml .Values.b64Manifests | b64dec }}
   {{ end }}
 
 postgresql:
@@ -65,10 +66,15 @@ auth:
   apikey:
     enabled: {{ .Values.auth.apikey.enabled }}
     file: {{ .Values.auth.apikey.file }}
+    contents: |-
+{{ .Values.auth.apikey.contents | indent 6 }}
+
   oidc:
     enabled: {{ .Values.auth.oidc.enabled }}
     ca: {{ .Values.auth.oidc.ca }}
     issuer: {{ .Values.auth.oidc.issuer }}
+    pubKey: {{ .Values.auth.oidc.pubKey }}
+    
   tls:
     enabled: {{ .Values.auth.tls.enabled }}
     cacert: {{ .Values.auth.tls.cacert }}
