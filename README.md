@@ -6,18 +6,29 @@ This repository contains an implementation example on how to deploy the Quorum K
 
 ## 1.1. Quickstart
 
-1. To deploy a simple Quorum Key Manager (not production ready), run the following command:
+1. To deploy Quorum Key Manager solution, do the following:
+
 
 ```bash
+# Adapt the manifests.yaml with your own needs and values
+# then build up the B64_MANIFESTS like so
+export B64_MANIFESTS=$(envsubst < manifests/manifests.yaml | base64)
+
+# Adapt your env variables accordingly
+cp .env.sample .env
+# then
+export $(xargs < .env)
+# finally
 helmfile apply --suppress-secrets
 ```
 
-You may find the stores manifests definition in the dedicated section [here](./values/qkm.yaml.gotmpl) and then adapt it to yours needs following instructions found in doc
+You may find the nodes, roles and stores manifests definition in the dedicated section [here](./manifests/maifests.yaml) and then adapt it to yours needs following instructions found in [documentation](https://docs.quorum-key-manager.consensys.net)
 
 2. Once deployed you could easily test the Quorum Key Manager API in http://localhost:8080:
 
 ```
-kubectl port-forward --namespace qa-qkm svc/quorum-key-manager-quorumkeymanager 8080:8080
+export QKM_POD_NAME=$(kubectl get pods --namespace $YOUR_NS -l "app.kubernetes.io/name=quorumkeymanager,app.kubernetes.io/instance=quorum-key-manager" -o
+kubectl port-forward --namespace $YOUR_NS $QKM_POD_NAME 8080:8080
 ```
 
 [See Quorum Key Manager APIs documentation](https://consensys.github.io/quorum-key-manager)
@@ -44,7 +55,7 @@ Below are given commands and instructions to help you creating your own secrets 
 
 ## 3.1 Quorum Key Manager tls
 
-The server TLS configuration should be located in an existing secret pointed to by the `auth.tls.secretName` value found in the charts
+The server TLS configuration should be located in an *existing secret* pointed to by the `auth.tls.secretName` value found in the charts
 
 ## 3.1 Postgres tls
 
@@ -58,14 +69,30 @@ Secret name must be `postgres-certificates-tls-secret`
 kubectl create secret generic postgres-certificates-tls-secret --from-file=$PGSERVER_CRT_FILE --from-file=$PGSERVER_KEY_FILE --from-file=$PGCA_CERTS_FILE -n qa-qkm
 ```
 
-### client certificate
-
-fill the `postgresql` part in the file below.
-
-[here](./values/qkm.yaml.gotmpl)
-
-format is base64 pem encoded file for each value
-
 # 4 Manifests
 
-Manifests values must be passed to the chart using the `B64_MANIFESTS` env var. This env var is required. 
+Manifests values must be passed to the chart using the `B64_MANIFESTS` env var. This env var is required.
+
+Using the provided manifest sample in the manifests dir you can build this value using the following command
+
+```
+export B64_MANIFESTS=$(envsubst < manifests/manifests.yaml | base64)
+```
+
+Please note that you will need `envsubst` tool installed and that you should fill related env vars accordingly to fit your needs.
+
+[See Quorum Key Manager APIs documentation](https://consensys.github.io/quorum-key-manager) for manifests building.
+
+# 5 Env vars
+
+In the `env.sample` file you you find a sample of the env vars you need to set with your own values.
+
+It is recommanded that you make your own copy of this file to `.env` and then run something similar to 
+
+```
+export $(xargs < .env)
+```
+
+Other env vars are involved in the manifest creation process as seen above, these are left to your discretion.
+
+
