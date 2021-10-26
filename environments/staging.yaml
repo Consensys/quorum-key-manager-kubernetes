@@ -1,47 +1,5 @@
 observability:
   enabled: false
-postgresql:
-  tls:
-    enabled: true
-  Database: testDb
 auth:
   apikey:
-    enabled: true
     file: "/apikey/sample.csv"
-  oidc:
-    enabled: true
-  tls:
-    enabled: true
-    secretName: "qkm-tls"
-
-nodes:
-  - name: quorum-node
-    version: 0.0.1
-    specs:
-      rpc:
-        addr: https://quorum1.ops.consensys.net:8545
-      tessera:
-        addr: https://quorum1.ops.consensys.net:8545/tessera
-  - name: besu-node
-    version: 0.0.0
-    specs:
-      rpc:
-        addr: https://besu1.ops.consensys.net:8545
-      tessera: {}
-roles:
-  - name: signer
-    specs:
-      permission:
-        - "read:*"
-        - "sign:keys"
-        - "sign:ethereum"
-  - kind: Role
-    name: anonymous
-    specs:
-      permission:
-        - "proxy:nodes"
-  - kind: Role
-    name: guest
-    specs:
-      permission:
-        - "read:*"

@@ -1,6 +1,6 @@
 ---
 {{ $defaultNamespace := "qa-qkm" }}
-{{ $tag := "v21.9.1" }}
+{{ $tag := "v21.9.2" }}
 
 
 qkm:
@@ -25,10 +25,23 @@ postgresql:
     client:
       key: {{ env "QKM_PG_CLIENT_KEY" }}
       crt: {{ env "QKM_PG_CLIENT_CRT" }}
+  tls:
+    enabled: true
+  database: testDb
 
 auth:
+  apikey:
+    enabled: true
+    file: "/apikey/api-keys.csv"
+    contents: |
+      {{ readFile "api-key/api-keys.csv" }}
+
   oidc:
-    ca: {{ env "QKM_AUTH_OIDC_CA"}}
-    issuer: {{ env "QKM_AUTH_OIDC_ISSUER_URL"}}
+    enabled: true
+    ca: {{ env "QKM_AUTH_OIDC_CA" }}
+    pubKey: {{ env "QKM_AUTH_OIDC_PUB_KEY" }}
+    issuer: {{ env "QKM_AUTH_OIDC_ISSUER_URL" }}
   tls:
+    enabled: true
     cacert: {{ env "QKM_AUTH_TLS_CA"}}
+    secretName: {{ env "QKM_AUTH_TLS_SECRET_NAME" }}
