@@ -52,13 +52,6 @@ jobs:
       - run:
           name: helmfile lint
           command: helmfile -e ${ENVIRONMENT_VALUES} -f helmfile-core.yaml lint
-  validate:
-    executor: aws-eks/python3
-    steps:
-      - init
-      - run:
-          name: helmfile dry-run
-          command: helmfile -e ${ENVIRONMENT_VALUES} -f helmfile-core.yaml apply --args --dry-run --suppress-secrets --detailed-exitcode=false
   deploy:
     executor: aws-eks/python3
     steps:
@@ -96,13 +89,6 @@ workflows:
             branches:
               ignore:
                 - main
-      - validate:
-          filters:
-            branches:
-              ignore:
-                - main
-          requires: 
-            - lint
   circleci-api:
     when: 
       and: 
