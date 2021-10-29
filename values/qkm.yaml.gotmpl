@@ -79,3 +79,10 @@ auth:
     enabled: {{ .Values.auth.tls.enabled }}
     cacert: {{ .Values.auth.tls.cacert }}
     secretName: {{ .Values.auth.tls.secretName }}
+
+storage:
+  nfs:
+    enabled: {{ .Values.storage.nfs.enabled }}
+    driver: {{ .Values.storage.nfs.driver }}
+    provisioner: {{ .Values.storage.nfs.provisioner }}
+    fsID: {{ .Values.storage.nfs.fsID }}

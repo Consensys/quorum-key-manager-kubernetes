@@ -45,3 +45,10 @@ auth:
     enabled: true
     cacert: {{ env "QKM_AUTH_TLS_CA"}}
     secretName: {{ env "QKM_AUTH_TLS_SECRET_NAME" }}
+
+storage:
+  nfs:
+    enabled: true
+    driver: {{ env "QKM_STORAGE_NFS_DRIVER" }}
+    provisioner: {{ env "QKM_STORAGE_NFS_PROVISIONER" }}
+    fsID: {{ env "QKM_STORAGE_NFS_FS_ID" }}
