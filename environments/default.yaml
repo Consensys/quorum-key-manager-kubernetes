@@ -1,2 +1,15 @@
 observability:
   enabled: false
+vault:
+  agents:
+  - name: principal
+    image:
+      repository: vault
+      tag: 1.8.2
+    config:
+      wrapTTL: ""
+      role: quorumkeymanager
+    ca: your_ca
+    key: your_key
+    crt: your_crt
+    mountPath: /vault/token
