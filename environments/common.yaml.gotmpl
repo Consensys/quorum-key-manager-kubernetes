@@ -54,3 +54,8 @@ storage:
     provisioner: {{ env "QKM_STORAGE_NFS_PROVISIONER" }}
     fsID: {{ env "QKM_STORAGE_NFS_FS_ID" }}
   mountPath: /vault/token
+
+migrate:
+  environment: {}
+  environmentSecrets: {}
+  existingSecret: "remove-or-update-me"
