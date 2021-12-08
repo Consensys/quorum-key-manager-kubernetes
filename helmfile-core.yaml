@@ -14,7 +14,7 @@ releases:
     namespace: {{ .Values.qkm.namespace }}
     chart: consensys/quorumkeymanager
     atomic: true
-    version: 1.1.1
+    version: 1.1.4
     needs:
       - {{ .Values.qkm.namespace }}/postgres
     values:
