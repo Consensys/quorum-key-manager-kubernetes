@@ -1,13 +1,13 @@
 ---
 {{ $defaultNamespace := "qa-qkm" }}
-{{ $tag := "v21.9.2" }}
+{{ $tag := "v21.9.3" }}
 
 
 qkm:
   namespace: {{ env "QKM_NAMESPACE" | default $defaultNamespace  }}
 
   image:
-    repository: {{ env "QKM_REPOSITORY" | default "docker.io/consensys/quorum-key-manager" }}
+    repository: {{ env "QKM_REPOSITORY" | default "consensys/quorum-key-manager" }}
     tag: {{ env "QKM_TAG" | default $tag | quote }}
     pullPolicy: Always
 
@@ -26,8 +26,9 @@ postgresql:
       key: {{ env "QKM_PG_CLIENT_KEY" }}
       crt: {{ env "QKM_PG_CLIENT_CRT" }}
   tls:
-    enabled: true
+    enabled: false
   database: testDb
+  host: postgres-postgresql
 
 auth:
   apikey:
