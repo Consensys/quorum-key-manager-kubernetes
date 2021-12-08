@@ -46,38 +46,24 @@
     specs:
       permission:
         - "*:*"
-  - kind: AKVSecrets
+  - kind: HashicorpKeys
     version: 0.0.1
-    name: akv-secrets
+    name: hashicorp-secrets
     specs:
-      vaultName: ${QKM_AKV_VAULT_NAME}
-      tenantID: ${QKM_AKV_TENANT_ID}
-      clientID: ${QKM_AKV_CLIENT_ID}
-      clientSecret: ${QKM_AKV_CLIENT_SECRET}
-  - kind: AKVKeys
+      mountPoint: secret
+      address: http://vault.orchestrate.svc.cluster.local:8200
+      tokenPath: /vault/token/.agent-orchestrate-vault-token
+      namespace: "orchestrate"
+      skipVerify: true
+  - kind: HashicorpKeys
     version: 0.0.1
-    name: akv-keys
+    name: hashicorp-keys
     specs:
-      vaultName: ${QKM_AKV_VAULT_NAME}
-      tenantID: ${QKM_AKV_TENANT_ID}
-      clientID: ${QKM_AKV_CLIENT_ID}
-      clientSecret: ${QKM_AKV_CLIENT_SECRET}
-  - kind: AWSSecrets
-    version: 0.0.1
-    name: aws-secrets
-    specs:
-      accessID: ${QKM_AWS_ACCESS_ID}
-      secretKey: ${QKM_AWS_SECRET_KEY}
-      region: ${QKM_AWS_REGION}
-      debug: false
-  - kind: AWSKeys
-    version: 0.0.1
-    name: aws-keys
-    specs:
-      accessID: ${QKM_AWS_ACCESS_ID}
-      secretKey: ${QKM_AWS_SECRET_KEY}
-      region: ${QKM_AWS_REGION}
-      debug: false
+      mountPoint: quorum
+      address: http://vault.orchestrate.svc.cluster.local:8200
+      tokenPath: /vault/token/.agent-orchestrate-vault-token
+      namespace: "orchestrate"
+      skipVerify: true
   - kind: Ethereum
     version: 0.0.1
     name: eth-accounts
@@ -85,7 +71,7 @@
       keystore: HashicorpKeys
       specs:
         mountPoint: quorum
-        address: http://vault:8200
+        address: http://vault.orchestrate.svc.cluster.local:8200
         tokenPath: /vault/token/.agent-orchestrate-vault-token
         namespace: "orchestrate"
         skipVerify: true

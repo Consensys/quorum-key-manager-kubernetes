@@ -46,22 +46,6 @@
     specs:
       permission:
         - "*:*"
-  - kind: AKVSecrets
-    version: 0.0.1
-    name: akv-secrets
-    specs:
-      vaultName: ${QKM_AKV_VAULT_NAME}
-      tenantID: ${QKM_AKV_TENANT_ID}
-      clientID: ${QKM_AKV_CLIENT_ID}
-      clientSecret: ${QKM_AKV_CLIENT_SECRET}
-  - kind: AKVKeys
-    version: 0.0.1
-    name: akv-keys
-    specs:
-      vaultName: ${QKM_AKV_VAULT_NAME}
-      tenantID: ${QKM_AKV_TENANT_ID}
-      clientID: ${QKM_AKV_CLIENT_ID}
-      clientSecret: ${QKM_AKV_CLIENT_SECRET}
   - kind: AWSSecrets
     version: 0.0.1
     name: aws-secrets
@@ -82,12 +66,11 @@
     version: 0.0.1
     name: eth-accounts
     specs:
-      keystore: HashicorpKeys
+      keystore: AWSKeys
       specs:
-        mountPoint: quorum
-        address: http://vault:8200
-        tokenPath: /vault/token/.agent-orchestrate-vault-token
-        namespace: "orchestrate"
-        skipVerify: true
+        accessID: ${QKM_AWS_ACCESS_ID}
+        secretKey: ${QKM_AWS_SECRET_KEY}
+        region: ${QKM_AWS_REGION}
+        debug: false
 
         
