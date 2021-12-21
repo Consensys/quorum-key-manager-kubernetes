@@ -1,0 +1,22 @@
+- kind: Vault
+    type: aws
+    name: aws-europe
+    # allowed_tenants: [tenant1, tenant2]
+    specs:
+      access_id: ${QKM_AWS_ACCESS_ID}
+      secret_key: ${QKM_AWS_SECRET_KEY}
+      region: ${QKM_AWS_REGION}
+      debug: false
+  - kind: Store
+    type: key
+    name: aws-keys
+    # allowed_tenants: []
+    specs:
+      vault: aws-europe
+  - kind: Store
+    type: ethereum
+    name: eth-accounts
+    # allowed_tenants: []
+    specs:
+      key_store: aws-keys
+        
