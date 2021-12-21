@@ -1,5 +1,9 @@
 observability:
   enabled: false
+vault:
+  tls:
+    enabled: false
+  agents: {}
 auth:
   apikey:
     file: "/apikey/sample.csv"
