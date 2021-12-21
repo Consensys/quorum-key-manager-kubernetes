@@ -4,8 +4,8 @@ image:
 environment:
   HTTP_HOST: 0.0.0.0
   LOG_FORMAT: json
-  DB_HOST: {{ .Values.postgresql.host }}.{{ .Values.qkm.namespace }}
-  DB_PORT: 5432
+  DB_HOST: {{ .Values.postgresql.host }}
+  DB_PORT: {{ .Values.postgresql.port }}
   DB_DATABASE: {{ .Values.postgresql.database }}
   DB_PASSWORD: "1234567890"
   {{ if .Values.postgresql.tls.enabled }}
