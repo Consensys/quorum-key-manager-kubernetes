@@ -12,9 +12,9 @@ releases:
       - values/postgres.yaml.gotmpl
   - name: quorum-key-manager
     namespace: {{ .Values.qkm.namespace }}
-    chart: consensys/quorumkeymanager
+    chart: chartmuseum/quorumkeymanager
     atomic: true
-    version: 1.1.4
+    version: 1.1.5
     needs:
       - {{ .Values.qkm.namespace }}/postgres
     values:
