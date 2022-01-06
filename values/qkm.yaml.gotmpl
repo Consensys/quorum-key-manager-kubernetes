@@ -4,9 +4,9 @@ image:
 environment:
   HTTP_HOST: 0.0.0.0
   LOG_FORMAT: json
-  DB_HOST: postgres-postgresql.{{ .Values.qkm.namespace }}
-  DB_PORT: 5432
-  DB_DATABASE: {{ .Values.postgresql.Database }}
+  DB_HOST: {{ .Values.postgresql.host }}
+  DB_PORT: {{ .Values.postgresql.port }}
+  DB_DATABASE: {{ .Values.postgresql.database }}
   DB_PASSWORD: "1234567890"
   {{ if .Values.postgresql.tls.enabled }}
   DB_TLS_SSLMODE: "require"
@@ -25,6 +25,7 @@ environment:
   {{ end }}
   {{ if .Values.auth.oidc.enabled }}
   AUTH_OIDC_CA_CERT: "/oidc_certs/ca.crt"
+  AUTH_OIDC_PUB_KEY: "/oidc_certs/oidc.pub"
   AUTH_OIDC_ISSUER_URL: {{ .Values.auth.oidc.issuer }}
   {{ end }}
   {{- range $key,$value := .Values.qkm.environment }}
@@ -52,7 +53,7 @@ ingress:
       
 manifests: |-
   {{ if .Values.b64Manifests }}
-    {{- toYaml .Values.b64Manifests | b64dec }}
+  {{- toYaml .Values.b64Manifests | b64dec }}
   {{ end }}
 
 postgresql:
@@ -65,11 +66,60 @@ auth:
   apikey:
     enabled: {{ .Values.auth.apikey.enabled }}
     file: {{ .Values.auth.apikey.file }}
+    contents: |-
+{{ .Values.auth.apikey.contents | indent 6 }}
+
   oidc:
     enabled: {{ .Values.auth.oidc.enabled }}
     ca: {{ .Values.auth.oidc.ca }}
     issuer: {{ .Values.auth.oidc.issuer }}
+    pubKey: {{ .Values.auth.oidc.pubKey }}
+    
   tls:
     enabled: {{ .Values.auth.tls.enabled }}
     cacert: {{ .Values.auth.tls.cacert }}
     secretName: {{ .Values.auth.tls.secretName }}
+
+storage:
+  nfs:
+    enabled: {{ .Values.storage.nfs.enabled }}
+    driver: {{ .Values.storage.nfs.driver }}
+    provisioner: {{ .Values.storage.nfs.provisioner }}
+    fsID: {{ .Values.storage.nfs.fsID }}
+
+migrate:
+  environment:
+    HTTP_HOST: 0.0.0.0
+    LOG_FORMAT: json
+    DB_HOST: {{ .Values.postgresql.host }}.{{ .Values.qkm.namespace }}
+    DB_PORT: 5432
+    DB_DATABASE: {{ .Values.postgresql.database }}
+    DB_PASSWORD: "1234567890"
+    {{ if .Values.postgresql.tls.enabled }}
+    DB_TLS_SSLMODE: "require"
+    DB_TLS_CA: "/postgres/certs/ca.crt"
+    DB_TLS_CERT: "/postgres/certs/client.crt"
+    DB_TLS_KEY: "/postgres/key/client.key"
+    {{ end }}
+  existingSecret: {{ .Values.migrate.existingSecret }}
+
+vault:
+  tls:
+    enabled: {{ .Values.vault.tls.enabled }}
+  agents:
+  {{- range .Values.vault.agents }}
+  - name: {{ .name }}
+    vaultAddress: {{ .vaultAddress }}
+    image:
+      repository: vault
+      tag: 1.8.2
+    config:
+      wrapTTL: ""
+      role: {{ .config.role }}
+    ca: {{ .ca }}
+    key: {{ .key }}
+    crt: {{ .crt }}
+    mountPath: /vault/token
+    {{- end }}
+podSecurityContext:
+  fsGroup: 1001

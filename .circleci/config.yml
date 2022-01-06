@@ -26,7 +26,7 @@ commands:
       - run:
           name: Install helmfile
           command: |
-            curl -L --fail --retry 3 -o ./helmfile  https://github.com/roboll/helmfile/releases/download/v0.130.0/helmfile_linux_amd64
+            curl -L --fail --retry 3 -o ./helmfile  https://github.com/roboll/helmfile/releases/download/v0.141.0/helmfile_linux_amd64
             chmod +x ./helmfile
             sudo mv ./helmfile /usr/local/bin/helmfile
 
@@ -58,7 +58,7 @@ jobs:
       - init
       - run:
           name: helmfile dry-run
-          command: helmfile -e ${ENVIRONMENT_VALUES} -f helmfile-core.yaml apply --args --dry-run --suppress-secrets --detailed-exitcode=false
+          command: helmfile -e ${ENVIRONMENT_VALUES} -f helmfile-core.yaml template --validate
   deploy:
     executor: aws-eks/python3
     steps:

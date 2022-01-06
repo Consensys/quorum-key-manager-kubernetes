@@ -1,0 +1,21 @@
+- kind: Vault
+    type: azure
+    name: akv-europe
+    # allowed_tenants: [tenant1, tenant2]
+    specs:
+      vault_name: ${QKM_AKV_VAULT_NAME}
+      tenant_id: ${QKM_AKV_TENANT_ID}
+      client_id: ${QKM_AKV_CLIENT_ID}
+      client_secret: ${QKM_AKV_CLIENT_SECRET}
+  - kind: Store
+    type: key
+    name: akv-keys
+    # allowed_tenants: []
+    specs:
+      vault: akv-europe
+  - kind: Store
+    type: ethereum
+    name: eth-accounts
+    # allowed_tenants: []
+    specs:
+      key_store: akv-keys     

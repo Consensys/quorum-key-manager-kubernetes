@@ -1,0 +1,21 @@
+- kind: Vault
+    type: hashicorp
+    name: hashicorp-quorum
+    #allowed_tenants: [tenant1, tenant2]
+    specs:
+      mount_point: quorum
+      address: http://vault.orchestrate.svc.cluster.local:8200
+      token_path: /vault/token/.agent-orchestrate-vault-token
+      namespace: "orchestrate"
+  - kind: Store
+    type: key
+    name: hashicorp-keys
+    #allowed_tenants: [tenant1, tenant2]
+    specs:
+      vault: hashicorp-quorum
+  - kind: Store
+    type: ethereum
+    name: eth-accounts
+    #allowed_tenants: [tenant1, tenant2]
+    specs:
+      key_store: hashicorp-keys

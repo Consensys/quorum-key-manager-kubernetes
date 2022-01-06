@@ -1,13 +1,13 @@
 ---
 {{ $defaultNamespace := "qa-qkm" }}
-{{ $tag := "v21.9.1" }}
+{{ $tag := "v21.12.1" }}
 
 
 qkm:
   namespace: {{ env "QKM_NAMESPACE" | default $defaultNamespace  }}
 
   image:
-    repository: {{ env "QKM_REPOSITORY" | default "docker.io/consensys/quorum-key-manager" }}
+    repository: {{ env "QKM_REPOSITORY" | default "consensys/quorum-key-manager" }}
     tag: {{ env "QKM_TAG" | default $tag | quote }}
     pullPolicy: Always
 
@@ -25,10 +25,38 @@ postgresql:
     client:
       key: {{ env "QKM_PG_CLIENT_KEY" }}
       crt: {{ env "QKM_PG_CLIENT_CRT" }}
+  tls:
+    enabled: false
+  database: testDb
+  host: postgres-postgresql
+  port: 5432
 
 auth:
+  apikey:
+    enabled: true
+    file: "/apikey/api-keys.csv"
+    contents: |
+      {{ readFile "api-key/api-keys.csv" }}
+
   oidc:
-    ca: {{ env "QKM_AUTH_OIDC_CA"}}
-    issuer: {{ env "QKM_AUTH_OIDC_ISSUER_URL"}}
+    enabled: true
+    ca: {{ env "QKM_AUTH_OIDC_CA" }}
+    pubKey: {{ env "QKM_AUTH_OIDC_PUB_KEY" }}
+    issuer: {{ env "QKM_AUTH_OIDC_ISSUER_URL" }}
   tls:
+    enabled: true
     cacert: {{ env "QKM_AUTH_TLS_CA"}}
+    secretName: {{ env "QKM_AUTH_TLS_SECRET_NAME" }}
+
+storage:
+  nfs:
+    enabled: true
+    driver: {{ env "QKM_STORAGE_NFS_DRIVER" }}
+    provisioner: {{ env "QKM_STORAGE_NFS_PROVISIONER" }}
+    fsID: {{ env "QKM_STORAGE_NFS_FS_ID" }}
+  mountPath: /vault/token
+
+migrate:
+  environment: {}
+  environmentSecrets: {}
+  existingSecret: "remove-or-update-me"

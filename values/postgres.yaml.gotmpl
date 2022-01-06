@@ -1,6 +1,6 @@
 postgresqlUsername: postgres
 postgresqlPassword: "1234567890"
-postgresqlDatabase: {{ .Values.postgresql.Database }}
+postgresqlDatabase: {{ .Values.postgresql.database }}
 
 postgresqlMaxConnections: 100
 tls:
@@ -21,7 +21,7 @@ volumePermissions:
 
 initdbScripts:
   10_setup.sql: |
-    CREATE DATABASE {{ .Values.postgresql.Database }};
+    CREATE DATABASE {{ .Values.postgresql.database }};
     BEGIN;
     CREATE TABLE IF NOT EXISTS secrets (
         pk SERIAL PRIMARY KEY,
