@@ -10,6 +10,12 @@ qkm:
     repository: {{ env "QKM_REPOSITORY" | default "consensys/quorum-key-manager" }}
     tag: {{ env "QKM_TAG" | default $tag | quote }}
     pullPolicy: Always
+  
+  imageCredentials:
+    create: true
+    registry: docker.consensys.net
+    username: {{ env "REGISTRY_USERNAME" }}
+    password: {{ env "REGISTRY_PASSWORD" }}
 
   environment: {}
   environmentSecrets: {}

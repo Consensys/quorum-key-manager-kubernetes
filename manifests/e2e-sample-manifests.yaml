@@ -1,0 +1,121 @@
+- kind: Vault
+    type: hashicorp
+    name: hashicorp-quorum
+    #allowed_tenants: [tenant1, tenant2]
+    specs:
+      mount_point: quorum
+      address: http://vault.orchestrate.svc.cluster.local:8200
+      token_path: /vault/token/.agent-orchestrate-vault-token
+      namespace: "orchestrate"
+  - kind: Vault
+    type: hashicorp
+    name: hashicorp-kv-v2
+    # allowed_tenants: [tenant1, tenant2]
+    specs:
+      mount_point: secret
+      address: http://vault.orchestrate.svc.cluster.local:8200
+      token_path: /vault/token/.agent-orchestrate-vault-token
+      namespace: "orchestrate"
+  - kind: Store
+    type: key
+    name: hashicorp-keys
+    #allowed_tenants: [tenant1, tenant2]
+    specs:
+      vault: hashicorp-quorum
+  - kind: Store
+    type: key
+    name: local-keys
+    #allowed_tenants: [tenant1, tenant2]
+    specs:
+      vault: hashicorp-quorum
+  - kind: Store
+    type: secret
+    name: hashicorp-secrets
+    # allowed_tenants: []
+    specs:
+      vault: hashicorp-kv-v2
+  - kind: Store
+    type: ethereum
+    name: eth-accounts
+    #allowed_tenants: [tenant1, tenant2]
+    specs:
+      key_store: hashicorp-keys
+  - kind: Node
+    name: quorum-node
+    specs:
+      rpc:
+        addr: ${QUORUM_URL}
+      tessera:
+        addr: ${TESSERA_URL}
+  - kind: Node
+    name: quorum1-node
+    specs:
+      rpc:
+        addr: ${QUORUM1_URL}
+      tessera:
+        addr: ${TESSERA_URL}
+  - kind: Node
+    name: quorum2-node
+    specs:
+      rpc:
+        addr: ${QUORUM2_URL}
+      tessera:
+        addr: ${TESSERA_URL}
+  - kind: Node
+    name: quorum11-node
+    specs:
+      rpc:
+        addr: ${QUORUM11_URL}
+      tessera:
+        addr: ${TESSERA_URL}
+  - kind: Node
+    name: quorum21-node
+    specs:
+      rpc:
+        addr: ${QUORUM21_URL}
+      tessera:
+        addr: ${TESSERA_URL}
+  - kind: Node
+    name: quorum3-node
+    specs:
+      rpc:
+        addr: ${QUORUM3_URL}
+      tessera:
+        addr: ${TESSERA_URL}
+
+  - kind: Node
+    name: besu-node
+    specs:
+      rpc:
+        addr: ${BESU_URL}
+
+  - kind: Node
+    name: geth-node
+    specs:
+      rpc:
+        addr: ${GETH_URL}
+  - kind: Role
+    name: anonymous
+    specs:
+      permissions:
+        - "proxy:nodes"
+
+  - kind: Role
+    name: guest
+    specs:
+      permissions:
+        - "read:*"
+
+  - kind: Role
+    name: signer
+    specs:
+      permissions:
+        - "read:*"
+        - "sign:keys"
+        - "sign:ethereum"
+
+  - kind: Role
+    name: admin
+    specs:
+      permissions:
+        - "*:*"

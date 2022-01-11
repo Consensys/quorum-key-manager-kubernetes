@@ -1,6 +1,11 @@
 image:
   {{- .Values.qkm.image | toYaml | nindent 2 }}
   pullPolicy: {{ .Values.qkm.image.pullPolicy }}
+imageCredentials:
+  create: true
+  registry: docker.consensys.net
+  username: {{ .Values.qkm.imageCredentials.username }}
+  password: {{ .Values.qkm.imageCredentials.password }}
 environment:
   HTTP_HOST: 0.0.0.0
   LOG_FORMAT: json
