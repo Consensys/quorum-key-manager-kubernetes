@@ -7,6 +7,12 @@ vault:
 auth:
   apikey:
     file: "/apikey/sample.csv"
+  tls:
+    enabled: true
+    cacert:
+    secretName: "qkm-tls"
+  oidc:
+    enabled: true
 storage:
   nfs:
     enabled: false
