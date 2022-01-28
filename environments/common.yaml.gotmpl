@@ -1,6 +1,8 @@
 ---
 {{ $defaultNamespace := "qa-qkm" }}
 {{ $tag := "v21.12.1" }}
+{{ $defaultQkmChart := "consensys/quorumkeymanager" }}
+{{ $defaultQkmChartVersion := "1.1.7" }}
 
 
 qkm:
@@ -16,6 +18,10 @@ qkm:
     registry: docker.consensys.net
     username: {{ env "REGISTRY_USERNAME" }}
     password: {{ env "REGISTRY_PASSWORD" }}
+
+  chart:
+    name: {{ env "QKM_CHART" | default $defaultQkmChart  }}
+    version: {{ env "QKM_CHART_VERSION" | default $defaultQkmChartVersion  }}
 
   environment: {}
   environmentSecrets: {}
@@ -49,6 +55,7 @@ auth:
     ca: {{ env "QKM_AUTH_OIDC_CA" }}
     pubKey: {{ env "QKM_AUTH_OIDC_PUB_KEY" }}
     issuer: {{ env "QKM_AUTH_OIDC_ISSUER_URL" }}
+    audience: {{ env "QKM_AUTH_OIDC_AUDIENCE" }}
   tls:
     enabled: true
     cacert: {{ env "QKM_AUTH_TLS_CA"}}
