@@ -63,7 +63,7 @@ auth:
 
 storage:
   nfs:
-    enabled: true
+    enabled: {{ env "QKM_STORAGE_NFS_ENABLED" }}
     driver: {{ env "QKM_STORAGE_NFS_DRIVER" }}
     provisioner: {{ env "QKM_STORAGE_NFS_PROVISIONER" }}
     fsID: {{ env "QKM_STORAGE_NFS_FS_ID" }}
