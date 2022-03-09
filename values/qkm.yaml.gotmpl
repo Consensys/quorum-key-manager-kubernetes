@@ -12,7 +12,8 @@ environment:
   DB_HOST: {{ .Values.postgresql.host }}
   DB_PORT: {{ .Values.postgresql.port }}
   DB_DATABASE: {{ .Values.postgresql.database }}
-  DB_PASSWORD: "1234567890"
+  DB_USER: {{ .Values.postgresql.user }}
+  DB_PASSWORD: {{ .Values.postgresql.password }}
   {{ if .Values.postgresql.tls.enabled }}
   DB_TLS_SSLMODE: "require"
   DB_TLS_CA: "/postgres/certs/ca.crt"
@@ -48,16 +49,14 @@ ingress:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-
+    nginx.ingress.kubernetes.io/auth-tls-pass-certificate-to-upstream: "true"
+    
   hosts:
     - host: {{ .Values.qkm.namespace }}.{{ .Values.domainName }}
       paths:
         - path: /
           pathType: Prefix
           servicePort: 8080
-        - path: /isalive
-          pathType: Prefix
-          servicePort: 8081
   tls:
     - hosts:
       - {{ .Values.qkm.namespace }}.{{ .Values.domainName }}
@@ -103,10 +102,11 @@ migrate:
   environment:
     HTTP_HOST: 0.0.0.0
     LOG_FORMAT: json
-    DB_HOST: {{ .Values.postgresql.host }}.{{ .Values.qkm.namespace }}
+    DB_HOST: {{ .Values.postgresql.host }}
     DB_PORT: 5432
     DB_DATABASE: {{ .Values.postgresql.database }}
-    DB_PASSWORD: "1234567890"
+    DB_USER: {{ .Values.postgresql.user }}
+    DB_PASSWORD: {{ .Values.postgresql.password }}
     {{ if .Values.postgresql.tls.enabled }}
     DB_TLS_SSLMODE: "require"
     DB_TLS_CA: "/postgres/certs/ca.crt"

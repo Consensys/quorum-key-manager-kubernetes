@@ -1,5 +1,7 @@
 observability:
   enabled: false
+postgresql:
+  database: qkm_staging
 vault:
   tls:
     enabled: false

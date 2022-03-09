@@ -39,8 +39,9 @@ postgresql:
       crt: {{ env "QKM_PG_CLIENT_CRT" }}
   tls:
     enabled: false
-  database: testDb
-  host: postgres-postgresql
+  host: {{ env "QKM_PG_HOST" }}
+  user: {{ env "QKM_PG_USER" }}
+  password: {{ env "QKM_PG_PASSWORD" }}
   port: 5432
 
 auth:
