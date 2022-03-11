@@ -1,5 +1,7 @@
 observability:
   enabled: false
+postgresql:
+  database: postgres
 vault:
   tls:
     enabled: false
