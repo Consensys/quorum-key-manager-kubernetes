@@ -105,11 +105,14 @@ workflows:
                 - main
           requires: 
             - lint
+  # API flow is triggered when namespace
+  # is "qa-qkm"
+  # or "staging-qkm"
   circleci-api:
     when:
       or:
-        - equal: [ qa, << pipeline.parameters.qkm-namespace >> ]
-        - equal: [ staging, << pipeline.parameters.qkm-namespace >> ]
+        - equal: [ qa-qkm, << pipeline.parameters.qkm-namespace >> ]
+        - equal: [ staging-qkm, << pipeline.parameters.qkm-namespace >> ]
     jobs:
       - deploy:
           context:
