@@ -14,14 +14,14 @@ commands:
           install-kubectl: true
           cluster-name: ${AWS_EKS_CLUSTER_NAME}
       - helm/install-helm-client:
-          version: v3.3.4
+          version: v3.6.3
       - run:
           name: Install helm plugins
           command: helm plugin install https://github.com/databus23/helm-diff
       - run:
           name: Install helmfile
           command: |
-            curl -L --fail --retry 3 -o ./helmfile  https://github.com/roboll/helmfile/releases/download/v0.141.0/helmfile_linux_amd64
+            curl -L --fail --retry 3 -o ./helmfile  https://github.com/roboll/helmfile/releases/download/v0.144.0/helmfile_linux_amd64
             chmod +x ./helmfile
             sudo mv ./helmfile /usr/local/bin/helmfile
       - run:
