@@ -73,9 +73,7 @@ postgresql:
     ca: {{ .Values.postgresql.certs.ca }}
     client:
       key: {{ .Values.postgresql.certs.client.key }}
-      crt: {{ .Values.postgresql.certs.client.crt }}
-  tls:
-    enabled: {{ .Values.postgresql.tls.enabled }}
+      crt: {{ .Values.postgresql.certs.client.crt }}  
 auth:
   apikey:
     enabled: {{ .Values.auth.apikey.enabled }}
