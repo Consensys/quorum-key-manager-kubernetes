@@ -6,7 +6,7 @@ releases:
   - name: postgres
     namespace: {{ .Values.qkm.namespace }}
     chart: bitnami/postgresql
-    version: 10.9.5
+    version: 10.15.0
     atomic: true
     values:
       - values/postgres.yaml.gotmpl
