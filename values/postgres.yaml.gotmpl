@@ -1,5 +1,5 @@
-postgresqlUsername: postgres
-postgresqlPassword: "1234567890"
+postgresqlUsername: {{ .Values.postgresql.user }}
+postgresqlPassword: {{ .Values.postgresql.password }}
 postgresqlDatabase: {{ .Values.postgresql.database }}
 
 postgresqlMaxConnections: 100
