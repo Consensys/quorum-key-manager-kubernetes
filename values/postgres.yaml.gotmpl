@@ -2,6 +2,12 @@ postgresqlUsername: {{ .Values.postgresql.user }}
 postgresqlPassword: {{ .Values.postgresql.password }}
 postgresqlDatabase: {{ .Values.postgresql.database }}
 
+
+global:
+  postgresql:
+    auth:
+      postgresPassword: {{ .Values.postgresql.password }}
+
 postgresqlMaxConnections: 100
 tls:
   enabled: {{ .Values.postgresql.tls.enabled }}
