@@ -35,6 +35,9 @@ parameters:
   qkm-tag:
     type: string
     default: ""
+  environment-values:
+    type: string
+    default: ""
   
 jobs:
   lint:
@@ -71,13 +74,9 @@ jobs:
       - run:
           name: helmfile apply
           command: |
-            export REGISTRY_URL="<< parameters.docker-image-registry >>"
-            export REGISTRY_USERNAME="<< parameters.docker-user >>"
-            export REGISTRY_PASSWORD="<< parameters.docker-password >>"
             export QKM_TAG="<< pipeline.parameters.qkm-tag >>"
-            export QKM_REPOSITORY="<< parameters.docker-image-registry >>/orchestrate"
             export QKM_NAMESPACE="<< pipeline.parameters.qkm-namespace >>"
-            export ENVIRONMENT_VALUES="<< pipeline.parameters.qkm-namespace >>"
+            export ENVIRONMENT_VALUES="<< pipeline.parameters.environment-values >>"
             helmfile -e ${ENVIRONMENT_VALUES} -f helmfile-core.yaml apply --suppress-secrets --detailed-exitcode=false --concurrency 1
   
   clean-namespaces:
