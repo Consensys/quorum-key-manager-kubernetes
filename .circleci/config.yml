@@ -35,7 +35,16 @@ parameters:
   environment-values:
     type: string
     default: ""
-  
+  registry-username:
+    type: string
+    default: "" 
+  registry-password:
+    type: string
+    default: ""  
+  qkm-repository:
+    type: string
+    default: ""
+
 jobs:
   lint:
     executor:
@@ -74,6 +83,9 @@ jobs:
             export QKM_TAG="<< pipeline.parameters.qkm-tag >>"
             export QKM_NAMESPACE="<< pipeline.parameters.qkm-namespace >>"
             export ENVIRONMENT_VALUES="<< pipeline.parameters.environment-values >>"
+            export REGISTRY_USERNAME="<< pipeline.parameters.registry-username >>"
+            export REGISTRY_PASSWORD="<< pipeline.parameters.registry-password >>"
+            export QKM_REPOSITORY="<< pipeline.parameters.qkm-repository >>"
             helmfile -e ${ENVIRONMENT_VALUES} -f helmfile-core.yaml apply --suppress-secrets --detailed-exitcode=false --concurrency 1
   
   clean-namespaces:
