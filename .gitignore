@@ -31,3 +31,4 @@ env.sh
 .helm/
 .kube/
 .ash_history
+.git/

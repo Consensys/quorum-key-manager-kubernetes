@@ -105,3 +105,4 @@ export $(xargs < .env)
 Other env vars are involved in the manifest creation process as seen above, these are left to your discretion.
 
 
+test
